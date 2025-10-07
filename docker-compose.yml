@@ -1,0 +1,38 @@
+services:
+  ms-teams-service:
+    build:
+      context: .
+    container_name: ms-teams-service
+    working_dir: /app
+    command: mvn spring-boot:run -Dspring-boot.run.jvmArguments="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"
+    volumes:
+      - .:/app
+      - ~/.m2:/root/.m2
+    ports:
+      - "8080:8080"
+      - "5005:5005"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://ms-teams-db:5432/teamsbot
+      DATASOURCE_USERNAME: teamsbot
+      DATASOURCE_PASSWORD: teamsbot
+      MS_APP_ID: 3e8b4db4-1917-4a6e-8f35-6127e9e40cf6
+      MS_APP_PASSWORD: 8FK8Q~hYk1ieHnQoQoOYwSanSC3tElVdfpWr~amL
+      MS_TENANT_ID: 3abb1cd2-74a2-4b30-a76f-a25be31287ad
+    depends_on:
+      - ms-teams-db
+
+  ms-teams-db:
+    image: postgres:11-alpine
+    container_name: ms-teams-db
+    environment:
+      POSTGRES_DB: teamsbot
+      POSTGRES_USER: teamsbot
+      POSTGRES_PASSWORD: teamsbot
+      TZ: Europe/Kyiv
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:
