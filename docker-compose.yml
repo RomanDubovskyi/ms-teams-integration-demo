@@ -22,8 +22,7 @@ services:
       - ms-teams-db
 
   ms-teams-db:
-    image: postgres:11-alpine
-    container_name: ms-teams-db
+    image: postgres:15-alpine
     environment:
       POSTGRES_DB: teamsbot
       POSTGRES_USER: teamsbot
@@ -33,6 +32,15 @@ services:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+    environment:
+      - REDIS_PASSWORD=teamsbot
+    volumes:
+      - redis_data:/data
 
 volumes:
   pgdata:
+  redis_data:
