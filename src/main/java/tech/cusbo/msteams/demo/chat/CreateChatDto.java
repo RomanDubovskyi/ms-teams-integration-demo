@@ -1,9 +1,10 @@
 package tech.cusbo.msteams.demo.chat;
 
+import com.microsoft.graph.models.ChatType;
 
 public record CreateChatDto(
     String topic,
-    String type,
+    ChatType type,
     String[] memberIds
 ) {
 

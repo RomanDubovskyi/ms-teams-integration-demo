@@ -13,11 +13,11 @@ services:
       - "5005:5005"
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://ms-teams-db:5432/teamsbot
-      DATASOURCE_USERNAME: teamsbot
-      DATASOURCE_PASSWORD: teamsbot
-      MS_APP_ID: 3e8b4db4-1917-4a6e-8f35-6127e9e40cf6
-      MS_APP_PASSWORD: 8FK8Q~hYk1ieHnQoQoOYwSanSC3tElVdfpWr~amL
-      MS_TENANT_ID: 3abb1cd2-74a2-4b30-a76f-a25be31287ad
+      DATASOURCE_USERNAME: ${DATASOURCE_USERNAME}
+      DATASOURCE_PASSWORD: ${DATASOURCE_PASSWORD}
+      MS_APP_ID: ${MS_APP_ID}
+      MS_APP_SECRET: ${MS_APP_SECRET}
+      MS_TENANT_ID: ${MS_TENANT_ID}
     depends_on:
       - ms-teams-db
 
@@ -25,8 +25,8 @@ services:
     image: postgres:15-alpine
     environment:
       POSTGRES_DB: teamsbot
-      POSTGRES_USER: teamsbot
-      POSTGRES_PASSWORD: teamsbot
+      POSTGRES_USER: ${DATASOURCE_USERNAME}
+      POSTGRES_PASSWORD: ${DATASOURCE_PASSWORD}
       TZ: Europe/Kyiv
     ports:
       - "5432:5432"
@@ -37,7 +37,7 @@ services:
     ports:
       - "6379:6379"
     environment:
-      - REDIS_PASSWORD=teamsbot
+      REDIS_PASSWORD: ${REDIS_PASS}
     volumes:
       - redis_data:/data
 

@@ -19,7 +19,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         .csrf()
         .disable()
         .authorizeRequests()
-        .antMatchers("/api/graph/webhook/events", "/api/graph/webhook/lifecycle").permitAll()
+        .antMatchers(
+            "/api/graph/webhook/events",
+            "/api/graph/webhook/lifecycle"
+        ).permitAll()
         .antMatchers("/", "/login**", "/error").permitAll()
         .anyRequest().authenticated()
         .and()

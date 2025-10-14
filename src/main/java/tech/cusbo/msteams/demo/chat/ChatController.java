@@ -117,14 +117,9 @@ public class ChatController {
     allMembers.addAll(members);
 
     Chat newChat = new Chat();
-    newChat.setChatType(ChatType.forValue(createChatDto.type()));
+    newChat.setChatType(createChatDto.type());
     newChat.setTopic(createChatDto.topic());
     newChat.setMembers(allMembers);
     return newChat;
   }
 }
-
-// Jul 20 - 15 days
-// April 27 - 10 days
-// Nov 2 - 5 days
-

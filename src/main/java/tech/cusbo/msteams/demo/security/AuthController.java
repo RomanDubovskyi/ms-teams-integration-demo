@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@Log4j2
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
@@ -18,7 +17,7 @@ public class AuthController {
   private final GraphServiceClient graphClient;
 
   @GetMapping("/logged-in")
-  public ResponseEntity<String> user() {
+  public ResponseEntity<String> displayCurrentUser() {
     User loggedInUser = graphClient.me().get();
     String displayInfo = loggedInUser != null ? loggedInUser.getMail() : "<No logged in users>";
     return ResponseEntity.ok(displayInfo);
