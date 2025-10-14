@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import tech.cusbo.msteams.demo.security.SecureRandomGenerator;
 
@@ -37,7 +38,8 @@ public class GraphApiSubscriptionService {
       )
   );
 
-  public void ensureEventSubscriptionsForLoggedInUser() {
+  @Async
+  public void ensureEventSubscriptionsForLoggedInUserAsync() {
     List<Subscription> currSubs = graphClient.subscriptions().get().getValue();
     Map<String, Subscription> currSubResourceMap = currSubs.stream()
         .collect(Collectors.toMap(Subscription::getResource, Function.identity()));

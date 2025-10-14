@@ -20,7 +20,7 @@ public class OnLoginSubscribeToEventsHandler implements AuthenticationSuccessHan
       HttpServletResponse response,
       Authentication authentication
   ) {
-    subscriptionService.ensureEventSubscriptionsForLoggedInUser();
+    subscriptionService.ensureEventSubscriptionsForLoggedInUserAsync();
     response.sendRedirect("/");
   }
 }

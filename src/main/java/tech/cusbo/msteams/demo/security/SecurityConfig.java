@@ -26,14 +26,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         .antMatchers("/", "/login**", "/error").permitAll()
         .anyRequest().authenticated()
         .and()
-        .oauth2Login()
-        .defaultSuccessUrl("/auth/logged-in", true)
-        .and()
         .logout()
         .logoutSuccessUrl("/")
         .and()
         .oauth2Login(oauth -> oauth
             .successHandler(subscribeToEventsHandler)
+            .defaultSuccessUrl("/auth/logged-in", true)
         );
   }
 }
