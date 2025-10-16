@@ -21,6 +21,7 @@ import tech.cusbo.msteams.demo.security.util.SecureRandomGenerator;
 @RequiredArgsConstructor
 public class GraphApiSubscriptionService {
 
+  private static final int ALLOWED_DAYS_BEFORE_EXP = 2;
   private final GraphEventsEncryptionService encryptionKeyProvider;
   private final GraphSubscriptionSecretRepository graphSubscriptionSecretRepo;
   private final GraphSubscriptionUserRepository userGraphSubscriptionsRepo;
@@ -72,12 +73,10 @@ public class GraphApiSubscriptionService {
     subscription.setLifecycleNotificationUrl(apiInboundLifeCycleEventsUrl);
     subscription.setResource(subscriptionResourceDto.resource());
     subscription.setIncludeResourceData(true);
-    OffsetDateTime expireAt = OffsetDateTime.now().plusMinutes(2);
+    OffsetDateTime expireAt = OffsetDateTime.now().plusDays(ALLOWED_DAYS_BEFORE_EXP);
     subscription.setExpirationDateTime(expireAt);
     String clientStateSecret = SecureRandomGenerator.generateSecureRandomBase64String();
     subscription.setClientState(clientStateSecret);
-    subscription.setEncryptionCertificate(encryptionKeyProvider.getPublicKeyBase64());
-    subscription.setEncryptionCertificateId(encryptionKeyProvider.getEncryptionKeyId());
 
     var newSub = graphClient.subscriptions().post(subscription);
     graphSubscriptionSecretRepo.save(
