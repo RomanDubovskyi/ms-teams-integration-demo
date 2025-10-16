@@ -18,6 +18,7 @@ import tech.cusbo.msteams.demo.security.oauth.OauthTokenRepository;
 @Component
 @RequiredArgsConstructor
 public class OnLoginSubscribeToEventsHandler implements AuthenticationSuccessHandler {
+
   private final GraphApiSubscriptionService subscriptionService;
   private final OAuth2AuthorizedClientService clients;
   private final OauthTokenRepository tokenRepository;
@@ -33,13 +34,13 @@ public class OnLoginSubscribeToEventsHandler implements AuthenticationSuccessHan
     String msUserId = oidcUser.getClaimAsString("oid");
     String tenantId = oidcUser.getClaimAsString("tid");
     OAuth2AuthorizedClient client = clients.loadAuthorizedClient(
-            oauthToken.getAuthorizedClientRegistrationId(),
-            oauthToken.getName()
-        );
+        oauthToken.getAuthorizedClientRegistrationId(),
+        oauthToken.getName()
+    );
 
     OauthToken token = new OauthToken(
         client.getAccessToken().getTokenValue(),
-        client.getRefreshToken() != null ?  client.getRefreshToken().getTokenValue() : null,
+        client.getRefreshToken() != null ? client.getRefreshToken().getTokenValue() : null,
         client.getAccessToken().getExpiresAt(),
         OauthResource.MS_GRAPH
     );

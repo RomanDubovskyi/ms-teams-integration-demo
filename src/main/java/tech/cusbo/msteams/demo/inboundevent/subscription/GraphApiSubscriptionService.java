@@ -77,6 +77,8 @@ public class GraphApiSubscriptionService {
     subscription.setExpirationDateTime(expireAt);
     String clientStateSecret = SecureRandomGenerator.generateSecureRandomBase64String();
     subscription.setClientState(clientStateSecret);
+    subscription.setEncryptionCertificate(encryptionKeyProvider.getPublicKeyBase64());
+    subscription.setEncryptionCertificateId(encryptionKeyProvider.getEncryptionKeyId());
 
     var newSub = graphClient.subscriptions().post(subscription);
     graphSubscriptionSecretRepo.save(
