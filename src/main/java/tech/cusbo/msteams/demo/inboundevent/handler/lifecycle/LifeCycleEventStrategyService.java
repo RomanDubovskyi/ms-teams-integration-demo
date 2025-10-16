@@ -23,7 +23,8 @@ public class LifeCycleEventStrategyService {
   public void handleLifeCycleEventAsync(JsonNode event) {
     String eventType = event.path("lifecycleEvent").asText();
     log.info("RECEIVED event {} to process in strategy service", event);
-    LifeCycleEventsHandler handler = lifecycleEventHandlers.get(eventType);
+    LifeCycleEventsHandler defaultHandler = lifecycleEventHandlers.get("unsupported");
+    LifeCycleEventsHandler handler = lifecycleEventHandlers.getOrDefault(eventType, defaultHandler);
     handler.handle(event);
   }
 }
