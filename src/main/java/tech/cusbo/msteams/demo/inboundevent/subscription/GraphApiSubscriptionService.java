@@ -72,11 +72,12 @@ public class GraphApiSubscriptionService {
     subscription.setNotificationUrl(apiInboundEventsUrl);
     subscription.setLifecycleNotificationUrl(apiInboundLifeCycleEventsUrl);
     subscription.setResource(subscriptionResourceDto.resource());
-    subscription.setIncludeResourceData(true);
     OffsetDateTime expireAt = OffsetDateTime.now().plusDays(ALLOWED_DAYS_BEFORE_EXP);
     subscription.setExpirationDateTime(expireAt);
     String clientStateSecret = SecureRandomGenerator.generateSecureRandomBase64String();
     subscription.setClientState(clientStateSecret);
+    subscription.setEncryptionCertificate(encryptionKeyProvider.getPublicKeyBase64());
+    subscription.setEncryptionCertificateId(encryptionKeyProvider.getEncryptionKeyId());
 
     var newSub = graphClient.subscriptions().post(subscription);
     graphSubscriptionSecretRepo.save(
