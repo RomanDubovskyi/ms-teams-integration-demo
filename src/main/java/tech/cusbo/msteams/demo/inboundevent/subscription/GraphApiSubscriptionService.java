@@ -13,7 +13,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import tech.cusbo.msteams.demo.inboundevent.GraphEventsEncryptionService;
 import tech.cusbo.msteams.demo.security.util.SecureRandomGenerator;
 
 @Slf4j
@@ -22,7 +21,6 @@ import tech.cusbo.msteams.demo.security.util.SecureRandomGenerator;
 public class GraphApiSubscriptionService {
 
   private static final int ALLOWED_DAYS_BEFORE_EXP = 2;
-  private final GraphEventsEncryptionService encryptionKeyProvider;
   private final GraphSubscriptionSecretRepository graphSubscriptionSecretRepo;
   private final GraphSubscriptionUserRepository userGraphSubscriptionsRepo;
   private final GraphServiceClient graphClient;
