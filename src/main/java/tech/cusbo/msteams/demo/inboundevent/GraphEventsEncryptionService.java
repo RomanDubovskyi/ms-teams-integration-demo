@@ -50,7 +50,7 @@ public class GraphEventsEncryptionService {
   }
 
   @SneakyThrows
-  public PrivateKey getPrivateKey(){
+  public PrivateKey getPrivateKey() {
     byte[] keystoreBytes = Base64.getDecoder().decode(privateKeyBase64);
     KeyStore ks = KeyStore.getInstance("PKCS12");
     ks.load(new ByteArrayInputStream(keystoreBytes), keystorePassword.toCharArray());

@@ -46,7 +46,7 @@ public class InboundEventsController {
     JsonNode events = objectMapper.readTree(body);
     log.info("Parsed event payload: {}", events.toPrettyString());
     for (JsonNode event : events.path("value")) {
-        changeEventStrategyService.pickHandlerAndProcessAsync(event);
+      changeEventStrategyService.pickHandlerAndProcessAsync(event);
     }
     return ResponseEntity.ok()
         .contentType(MediaType.TEXT_PLAIN)

@@ -27,17 +27,17 @@ public class OauthTokenRepository {
   }
 
   public Optional<OauthToken> get(String tenantId, String msUserId) {
-    String key =  OAUTH_KEY_PREFIX + MsGraphRedisUtil.getMultitenantId(tenantId, msUserId);
+    String key = OAUTH_KEY_PREFIX + MsGraphRedisUtil.getMultitenantId(tenantId, msUserId);
     return Optional.ofNullable(redisTemplate.opsForValue().get(key));
   }
 
   public Optional<OauthToken> get(String multitenantUserId) {
-    String key =  OAUTH_KEY_PREFIX + multitenantUserId;
+    String key = OAUTH_KEY_PREFIX + multitenantUserId;
     return Optional.ofNullable(redisTemplate.opsForValue().get(key));
   }
 
 
   public void delete(String tenantId, String msUserId) {
-    redisTemplate.delete( OAUTH_KEY_PREFIX + MsGraphRedisUtil.getMultitenantId(tenantId, msUserId));
+    redisTemplate.delete(OAUTH_KEY_PREFIX + MsGraphRedisUtil.getMultitenantId(tenantId, msUserId));
   }
 }

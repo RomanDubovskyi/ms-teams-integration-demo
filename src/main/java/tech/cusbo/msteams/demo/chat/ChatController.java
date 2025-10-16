@@ -6,7 +6,6 @@ import com.microsoft.graph.models.BodyType;
 import com.microsoft.graph.models.Chat;
 import com.microsoft.graph.models.ChatMessage;
 import com.microsoft.graph.models.ChatMessageCollectionResponse;
-import com.microsoft.graph.models.ChatType;
 import com.microsoft.graph.models.ConversationMember;
 import com.microsoft.graph.models.ItemBody;
 import com.microsoft.graph.models.User;

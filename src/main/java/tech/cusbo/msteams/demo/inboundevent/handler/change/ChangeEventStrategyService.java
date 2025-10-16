@@ -37,7 +37,7 @@ public class ChangeEventStrategyService {
     if (storedSubscriptionSecret.isEmpty()
         || !Objects.equals(secretFromEvent, storedSubscriptionSecret.get())) {
       throw new RuntimeException("Invalid secret [clientState] field in the event, "
-          + "can't prove identity, full event" +  event.toPrettyString());
+          + "can't prove identity, full event" + event.toPrettyString());
     }
 
     JsonNode encryptedContent = event.path("encryptedContent");
