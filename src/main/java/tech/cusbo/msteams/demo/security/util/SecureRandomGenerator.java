@@ -1,4 +1,4 @@
-package tech.cusbo.msteams.demo.security;
+package tech.cusbo.msteams.demo.security.util;
 
 import java.security.SecureRandom;
 import java.util.Base64;

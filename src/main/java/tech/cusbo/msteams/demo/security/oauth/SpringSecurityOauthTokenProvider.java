@@ -1,4 +1,4 @@
-package tech.cusbo.msteams.demo.security;
+package tech.cusbo.msteams.demo.security.oauth;
 
 import com.microsoft.kiota.authentication.AccessTokenProvider;
 import com.microsoft.kiota.authentication.AllowedHostsValidator;
@@ -14,7 +14,7 @@ import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 
 @RequiredArgsConstructor
-public class OauthTokenProvider implements AccessTokenProvider {
+public class SpringSecurityOauthTokenProvider implements AccessTokenProvider {
 
   private final OAuth2AuthorizedClientService clients;
 

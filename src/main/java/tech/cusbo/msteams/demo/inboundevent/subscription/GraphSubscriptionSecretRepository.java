@@ -7,36 +7,29 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class GraphSubscriptionSecretRepo {
+public class GraphSubscriptionSecretRepository {
 
-  private static final String GRAPH_SUB_SECRET_KEY_PREFIX = "graph-sub-secret:";
-  private static final Duration GRAPH_SUB_SECRET_TTL = Duration.ofDays(2);
+  private static final String GRAPH_SUB_SECRET_KEY_PREFIX
+      = "graphSubscriptionSecret|subscriptionId:";
 
   private final RedisTemplate<String, String> tokenStoreRedisRepo;
 
-  public GraphSubscriptionSecretRepo(
+  public GraphSubscriptionSecretRepository(
       @Qualifier("tokenStoreRedisRepo") RedisTemplate<String, String> tokenStoreRedisRepo
   ) {
     this.tokenStoreRedisRepo = tokenStoreRedisRepo;
   }
 
-  public void save(String subId, String secret) {
+  public void save(String subId, String secret, Duration ttl) {
     tokenStoreRedisRepo.opsForValue().set(
         GRAPH_SUB_SECRET_KEY_PREFIX + subId,
         secret,
-        GRAPH_SUB_SECRET_TTL
+        ttl
     );
   }
 
   public void delete(String subId) {
     tokenStoreRedisRepo.opsForValue().getAndDelete(GRAPH_SUB_SECRET_KEY_PREFIX + subId);
-  }
-
-  public void extendTtlForDefaultPeriod(String subId) {
-    tokenStoreRedisRepo.opsForValue().getAndExpire(
-        GRAPH_SUB_SECRET_KEY_PREFIX + subId,
-        GRAPH_SUB_SECRET_TTL
-    );
   }
 
   public Optional<String> get(String subId) {
