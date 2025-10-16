@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import tech.cusbo.msteams.demo.inboundevent.subscription.OnLoginSubscribeToEventsHandler;
 
 @Configuration
 @EnableWebSecurity
@@ -31,7 +32,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         .and()
         .oauth2Login(oauth -> oauth
             .successHandler(subscribeToEventsHandler)
-            .defaultSuccessUrl("/auth/logged-in", true)
         );
   }
 }

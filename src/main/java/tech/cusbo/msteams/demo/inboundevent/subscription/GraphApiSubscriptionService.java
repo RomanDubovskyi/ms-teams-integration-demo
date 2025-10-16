@@ -2,6 +2,7 @@ package tech.cusbo.msteams.demo.inboundevent.subscription;
 
 import com.microsoft.graph.models.Subscription;
 import com.microsoft.graph.serviceclient.GraphServiceClient;
+import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
@@ -12,14 +13,17 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import tech.cusbo.msteams.demo.security.SecureRandomGenerator;
+import tech.cusbo.msteams.demo.inboundevent.GraphEventsEncryptionService;
+import tech.cusbo.msteams.demo.security.util.SecureRandomGenerator;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class GraphApiSubscriptionService {
 
-  private final GraphSubscriptionSecretRepo subSecretRepo;
+  private final GraphEventsEncryptionService encryptionKeyProvider;
+  private final GraphSubscriptionSecretRepository graphSubscriptionSecretRepo;
+  private final GraphSubscriptionUserRepository userGraphSubscriptionsRepo;
   private final GraphServiceClient graphClient;
 
   @Value("${api.graph.inbound.webhook-url}")
@@ -39,7 +43,7 @@ public class GraphApiSubscriptionService {
   );
 
   @Async
-  public void ensureEventSubscriptionsForLoggedInUserAsync() {
+  public void ensureEventSubscriptionsForLoggedInUserAsync(String tenantId, String msUserId) {
     List<Subscription> currSubs = graphClient.subscriptions().get().getValue();
     Map<String, Subscription> currSubResourceMap = currSubs.stream()
         .collect(Collectors.toMap(Subscription::getResource, Function.identity()));
@@ -51,8 +55,10 @@ public class GraphApiSubscriptionService {
       }
 
       try {
-        Subscription newSub = createSubscription(targetSub);
+        var newSub = createSubscription(targetSub);
         log.info("created sub for user {}, sub id: {}", mail, newSub.getId());
+        var subTtl = Duration.between(OffsetDateTime.now(), newSub.getExpirationDateTime());
+        userGraphSubscriptionsRepo.save(newSub.getId(), tenantId, msUserId, subTtl);
       } catch (Exception e) {
         log.error("couldn't subscribe for ms resource {}", targetSub, e);
       }
@@ -65,27 +71,21 @@ public class GraphApiSubscriptionService {
     subscription.setNotificationUrl(apiInboundEventsUrl);
     subscription.setLifecycleNotificationUrl(apiInboundLifeCycleEventsUrl);
     subscription.setResource(subscriptionResourceDto.resource());
-    subscription.setExpirationDateTime(OffsetDateTime.now().plusDays(2));
+    subscription.setIncludeResourceData(true);
+    OffsetDateTime expireAt = OffsetDateTime.now().plusMinutes(2);
+    subscription.setExpirationDateTime(expireAt);
     String clientStateSecret = SecureRandomGenerator.generateSecureRandomBase64String();
     subscription.setClientState(clientStateSecret);
+    subscription.setEncryptionCertificate(encryptionKeyProvider.getPublicKeyBase64());
+    subscription.setEncryptionCertificateId(encryptionKeyProvider.getEncryptionKeyId());
 
-    Subscription newSub = graphClient.subscriptions()
-        .post(subscription);
+    var newSub = graphClient.subscriptions().post(subscription);
+    graphSubscriptionSecretRepo.save(
+        subscription.getId(),
+        clientStateSecret,
+        Duration.between(OffsetDateTime.now(), expireAt)
+    );
 
-    subSecretRepo.save(subscription.getId(), clientStateSecret);
     return newSub;
-  }
-
-  public Subscription renewSubscription(String subscriptionId) {
-    Subscription subscription = new Subscription();
-    subscription.setExpirationDateTime(OffsetDateTime.now().plusDays(2));
-
-    Subscription patchedSub = graphClient
-        .subscriptions()
-        .bySubscriptionId(subscriptionId)
-        .patch(subscription);
-
-    subSecretRepo.extendTtlForDefaultPeriod(subscriptionId);
-    return patchedSub;
   }
 }
