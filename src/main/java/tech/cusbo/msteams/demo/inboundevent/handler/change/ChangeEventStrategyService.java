@@ -36,7 +36,7 @@ public class ChangeEventStrategyService {
     Optional<String> storedSubscriptionSecret = subscriptionSecretRepository.get(subscriptionId);
     if (storedSubscriptionSecret.isEmpty()
         || !Objects.equals(secretFromEvent, storedSubscriptionSecret.get())) {
-      throw new RuntimeException("Invalid secret [clientState] field in the event, "
+      throw new SecurityException("Invalid secret [clientState] field in the event, "
           + "can't prove identity, full event" + event.toPrettyString());
     }
 

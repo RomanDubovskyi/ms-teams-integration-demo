@@ -28,6 +28,7 @@ import org.springframework.stereotype.Service;
 public class GraphEventsEncryptionService {
 
   private final ObjectMapper objectMapper;
+  private PrivateKey cachedPrivateKey;
 
   @Getter
   @Value("${api.graph.subscription.encryption.key.id}")
@@ -47,14 +48,24 @@ public class GraphEventsEncryptionService {
   @PostConstruct
   public void init() {
     Security.addProvider(new BouncyCastleProvider());
+    try {
+      byte[] keystoreBytes = Base64.getDecoder().decode(privateKeyBase64);
+      KeyStore ks = KeyStore.getInstance("PKCS12");
+      ks.load(new ByteArrayInputStream(keystoreBytes), keystorePassword.toCharArray());
+      cachedPrivateKey = (PrivateKey) ks.getKey(
+          "graph-sub-key",
+          keystorePassword.toCharArray()
+       );
+    } catch (Exception e) {
+      throw new IllegalStateException("Can't init private key for ms graph events encryption", e);
+    }
   }
 
-  @SneakyThrows
   public PrivateKey getPrivateKey() {
-    byte[] keystoreBytes = Base64.getDecoder().decode(privateKeyBase64);
-    KeyStore ks = KeyStore.getInstance("PKCS12");
-    ks.load(new ByteArrayInputStream(keystoreBytes), keystorePassword.toCharArray());
-    return (PrivateKey) ks.getKey("graph-sub-key", keystorePassword.toCharArray());
+    if (cachedPrivateKey == null) {
+      throw new IllegalStateException("Private key not initialized");
+    }
+    return cachedPrivateKey;
   }
 
   @SneakyThrows
@@ -68,9 +79,8 @@ public class GraphEventsEncryptionService {
     }
 
     byte[] encryptedSymmetricKey = Base64.getDecoder().decode(encryptedSymmetricKeyBase64);
-    PrivateKey privateKey = getPrivateKey();
     Cipher rsaCipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA1AndMGF1Padding");
-    rsaCipher.init(Cipher.DECRYPT_MODE, privateKey);
+    rsaCipher.init(Cipher.DECRYPT_MODE, getPrivateKey());
     byte[] symmetricKey = rsaCipher.doFinal(encryptedSymmetricKey);
 
     byte[] encryptedData = Base64.getDecoder().decode(encryptedDataBase64);
