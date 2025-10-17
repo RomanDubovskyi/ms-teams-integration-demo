@@ -7,4 +7,6 @@ public record OauthToken(
     String refreshToken,
     Instant expiresAt,
     OauthResource service
-) {}
+) {
+
+}

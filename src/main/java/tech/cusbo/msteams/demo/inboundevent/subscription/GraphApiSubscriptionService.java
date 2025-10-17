@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import tech.cusbo.msteams.demo.inboundevent.GraphEventsEncryptionService;
 import tech.cusbo.msteams.demo.security.util.SecureRandomGenerator;
 
 @Slf4j
@@ -21,6 +22,7 @@ import tech.cusbo.msteams.demo.security.util.SecureRandomGenerator;
 public class GraphApiSubscriptionService {
 
   private static final int ALLOWED_DAYS_BEFORE_EXP = 2;
+  private final GraphEventsEncryptionService encryptionKeyProvider;
   private final GraphSubscriptionSecretRepository graphSubscriptionSecretRepo;
   private final GraphSubscriptionUserRepository userGraphSubscriptionsRepo;
   private final GraphServiceClient graphClient;
@@ -70,16 +72,22 @@ public class GraphApiSubscriptionService {
     subscription.setNotificationUrl(apiInboundEventsUrl);
     subscription.setLifecycleNotificationUrl(apiInboundLifeCycleEventsUrl);
     subscription.setResource(subscriptionResourceDto.resource());
-    OffsetDateTime expireAt = OffsetDateTime.now().plusDays(ALLOWED_DAYS_BEFORE_EXP);
+    subscription.setIncludeResourceData(true);
+    // TODO: 3 days is the max ttl for interested to us services but it
+    //  makes more sense to fetch this from GraphAPI if possible instead of hardcoding
+    OffsetDateTime now = OffsetDateTime.now();
+    OffsetDateTime expireAt = now.plusDays(ALLOWED_DAYS_BEFORE_EXP);
     subscription.setExpirationDateTime(expireAt);
     String clientStateSecret = SecureRandomGenerator.generateSecureRandomBase64String();
     subscription.setClientState(clientStateSecret);
+    subscription.setEncryptionCertificate(encryptionKeyProvider.getPublicKeyBase64());
+    subscription.setEncryptionCertificateId(encryptionKeyProvider.getEncryptionKeyId());
 
     var newSub = graphClient.subscriptions().post(subscription);
     graphSubscriptionSecretRepo.save(
-        subscription.getId(),
+        newSub.getId(),
         clientStateSecret,
-        Duration.between(OffsetDateTime.now(), expireAt)
+        Duration.between(now, expireAt)
     );
 
     return newSub;

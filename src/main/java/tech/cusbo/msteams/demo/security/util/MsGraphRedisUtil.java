@@ -1,6 +1,7 @@
 package tech.cusbo.msteams.demo.security.util;
 
 public class MsGraphRedisUtil {
+
   private static final String KEY_SPLITERATOR = "userId";
   private static final String KEY_PREFIX = "tenantId:";
 

@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
-public class UnsupportedEventHandler implements LifeCycleEventsHandler {
+public class UnsupportedLifeCycleEventHandler implements LifeCycleEventsHandler {
 
   @Override
   public void handle(JsonNode event) {

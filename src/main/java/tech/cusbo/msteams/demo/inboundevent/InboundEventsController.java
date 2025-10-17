@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import tech.cusbo.msteams.demo.inboundevent.handler.change.ChangeEventStrategyService;
 import tech.cusbo.msteams.demo.inboundevent.handler.lifecycle.LifeCycleEventStrategyService;
 
 @Slf4j
@@ -21,6 +22,7 @@ import tech.cusbo.msteams.demo.inboundevent.handler.lifecycle.LifeCycleEventStra
 public class InboundEventsController {
 
   private final LifeCycleEventStrategyService lifeCycleEventStrategyService;
+  private final ChangeEventStrategyService changeEventStrategyService;
   private final ObjectMapper objectMapper;
 
   @PostMapping(
@@ -33,17 +35,19 @@ public class InboundEventsController {
       @RequestBody(required = false) String body,
       @RequestParam(required = false, name = "validationToken") String validationToken
   ) {
-    log.info("📩 Received inbound /events call. validationToken={}, body={}", validationToken, body);
+    log.info("Received inbound /events call. validationToken={}, body={}", validationToken, body);
     if (validationToken != null) {
-      log.info("✅ Responding to subscription validation with token={}", validationToken);
+      log.info("Responding to subscription validation with token={}", validationToken);
       return ResponseEntity.ok()
           .contentType(MediaType.TEXT_PLAIN)
           .body(validationToken);
     }
 
-    JsonNode event = objectMapper.readTree(body);
-    log.info("⚙️ Parsed event payload: {}", event.toPrettyString());
-    // TODO: process event
+    JsonNode events = objectMapper.readTree(body);
+    log.info("Parsed event payload: {}", events.toPrettyString());
+    for (JsonNode event : events.path("value")) {
+      changeEventStrategyService.pickHandlerAndProcessAsync(event);
+    }
     return ResponseEntity.ok()
         .contentType(MediaType.TEXT_PLAIN)
         .body("ack");
