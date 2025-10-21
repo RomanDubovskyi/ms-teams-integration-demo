@@ -13,11 +13,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
 import org.springframework.web.client.RestTemplate;
-import tech.cusbo.msteams.demo.security.oauth.OauthToken;
 import tech.cusbo.msteams.demo.security.oauth.SpringSecurityOauthTokenProvider;
 
 @Configuration
@@ -59,21 +57,6 @@ public class AppConfig {
     template.setConnectionFactory(factory);
     template.setKeySerializer(stringRedisSerializer);
     template.setValueSerializer(stringRedisSerializer);
-    return template;
-  }
-
-  @Bean
-  @Qualifier("oauthStore")
-  public RedisTemplate<String, OauthToken> oauthStoreRedisRepo(
-      RedisConnectionFactory factory,
-      ObjectMapper defaultObjectMapper) {
-    RedisTemplate<String, OauthToken> template = new RedisTemplate<>();
-    template.setConnectionFactory(factory);
-    var valueSerializer = new Jackson2JsonRedisSerializer<>(OauthToken.class);
-    // The value serializer has to have java time module to work with Instant inside OauthToken
-    valueSerializer.setObjectMapper(defaultObjectMapper);
-    template.setKeySerializer(new StringRedisSerializer());
-    template.setValueSerializer(valueSerializer);
     return template;
   }
 }

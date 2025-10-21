@@ -2,10 +2,10 @@ package tech.cusbo.msteams.demo.inboundevent.subscription;
 
 import com.microsoft.graph.models.Subscription;
 import com.microsoft.graph.serviceclient.GraphServiceClient;
-import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -14,17 +14,17 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import tech.cusbo.msteams.demo.inboundevent.GraphEventsEncryptionService;
+import tech.cusbo.msteams.demo.security.util.MsGraphMultiTenantKeyUtil;
 import tech.cusbo.msteams.demo.security.util.SecureRandomGenerator;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class GraphApiSubscriptionService {
+public class GraphSubscriptionService {
 
   private static final int ALLOWED_DAYS_BEFORE_EXP = 2;
+  private final GraphSubscriptionRepository graphSubscriptionRepository;
   private final GraphEventsEncryptionService encryptionKeyProvider;
-  private final GraphSubscriptionSecretRepository graphSubscriptionSecretRepo;
-  private final GraphSubscriptionUserRepository userGraphSubscriptionsRepo;
   private final GraphServiceClient graphClient;
 
   @Value("${api.graph.inbound.webhook-url}")
@@ -48,7 +48,6 @@ public class GraphApiSubscriptionService {
     List<Subscription> currSubs = graphClient.subscriptions().get().getValue();
     Map<String, Subscription> currSubResourceMap = currSubs.stream()
         .collect(Collectors.toMap(Subscription::getResource, Function.identity()));
-    String mail = graphClient.me().get().getMail();
 
     for (GraphSubscriptionResourceDto targetSub : defaultSubs) {
       if (currSubResourceMap.containsKey(targetSub.resource())) {
@@ -56,17 +55,24 @@ public class GraphApiSubscriptionService {
       }
 
       try {
-        var newSub = createSubscription(targetSub);
-        log.info("created sub for user {}, sub id: {}", mail, newSub.getId());
-        var subTtl = Duration.between(OffsetDateTime.now(), newSub.getExpirationDateTime());
-        userGraphSubscriptionsRepo.save(newSub.getId(), tenantId, msUserId, subTtl);
+        var newSub = sendCreateSubscriptionRequest(targetSub);
+        log.info("created sub for user {}, sub id: {}", msUserId, newSub.getId());
+        GraphEventsSubscription internalSubInfo = new GraphEventsSubscription();
+        internalSubInfo.setExternalId(newSub.getId());
+        internalSubInfo.setSecret(newSub.getClientState());
+        String multitenantUserId = MsGraphMultiTenantKeyUtil.getMultitenantId(tenantId, msUserId);
+        internalSubInfo.setMultitenantUserId(multitenantUserId);
+        internalSubInfo.setSubscriptionState(SubscriptionState.created);
+        graphSubscriptionRepository.save(internalSubInfo);
       } catch (Exception e) {
         log.error("couldn't subscribe for ms resource {}", targetSub, e);
       }
     }
   }
 
-  public Subscription createSubscription(GraphSubscriptionResourceDto subscriptionResourceDto) {
+  private Subscription sendCreateSubscriptionRequest(
+      GraphSubscriptionResourceDto subscriptionResourceDto
+  ) {
     Subscription subscription = new Subscription();
     subscription.setChangeType(String.join(",", subscriptionResourceDto.changeTypes()));
     subscription.setNotificationUrl(apiInboundEventsUrl);
@@ -83,13 +89,14 @@ public class GraphApiSubscriptionService {
     subscription.setEncryptionCertificate(encryptionKeyProvider.getPublicKeyBase64());
     subscription.setEncryptionCertificateId(encryptionKeyProvider.getEncryptionKeyId());
 
-    var newSub = graphClient.subscriptions().post(subscription);
-    graphSubscriptionSecretRepo.save(
-        newSub.getId(),
-        clientStateSecret,
-        Duration.between(now, expireAt)
-    );
+    return graphClient.subscriptions().post(subscription);
+  }
 
-    return newSub;
+  public Optional<GraphEventsSubscription> findByExternalId(String subscriptionId) {
+    return graphSubscriptionRepository.findByExternalId(subscriptionId);
+  }
+
+  public void save(GraphEventsSubscription subscription) {
+    graphSubscriptionRepository.save(subscription);
   }
 }

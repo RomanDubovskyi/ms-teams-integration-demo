@@ -1,4 +1,4 @@
-package tech.cusbo.msteams.demo.security.oauth;
+package tech.cusbo.msteams.demo.inboundevent.subscription;
 
 import java.time.Instant;
 import javax.persistence.Column;
@@ -18,28 +18,22 @@ import org.hibernate.annotations.UpdateTimestamp;
 @Entity
 @Getter
 @Setter
-@Table(name = "oauth_tokens")
+@Table(name = "graph_events_subscriptions")
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public class OauthToken {
+public class GraphEventsSubscription {
+
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @EqualsAndHashCode.Include
   private Long id;
-  @Column(name = "access_token", nullable = false, columnDefinition = "TEXT")
-  private String accessToken;
-  @Column(name = "refresh_token", columnDefinition = "TEXT")
-  private String refreshToken;
-  private Instant expiresAt;
-  @Enumerated(EnumType.STRING)
-  private OauthResource resource;
+  private String externalId;
+  @Column(columnDefinition = "TEXT")
+  private String secret;
   // In production we're going to reference user entity here
   private String multitenantUserId;
+  @Enumerated(value = EnumType.STRING)
+  private SubscriptionState subscriptionState;
   @CreationTimestamp
   private Instant createdAt;
   @UpdateTimestamp
   private Instant updatedAt;
-
-  public boolean needsRefresh() {
-    return Instant.now().isAfter(this.expiresAt.minusSeconds(600));
-  }
 }

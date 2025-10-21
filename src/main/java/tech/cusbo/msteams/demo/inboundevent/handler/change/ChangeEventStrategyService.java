@@ -3,39 +3,37 @@ package tech.cusbo.msteams.demo.inboundevent.handler.change;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import tech.cusbo.msteams.demo.inboundevent.GraphEventsEncryptionService;
-import tech.cusbo.msteams.demo.inboundevent.subscription.GraphSubscriptionSecretRepository;
+import tech.cusbo.msteams.demo.inboundevent.subscription.GraphSubscriptionService;
 
 @Slf4j
 @Service
 public class ChangeEventStrategyService {
 
-  private final GraphSubscriptionSecretRepository subscriptionSecretRepository;
+  private final GraphSubscriptionService subscriptionService;
   private final Map<String, ChangeEventHandler> changeEventHandlerMap;
   private final GraphEventsEncryptionService encryptionService;
 
   public ChangeEventStrategyService(
       @Qualifier("changeEventHandlerMap") Map<String, ChangeEventHandler> changeEventHandlerMap,
       GraphEventsEncryptionService encryptionService,
-      GraphSubscriptionSecretRepository subscriptionSecretRepository
+      GraphSubscriptionService subscriptionService
   ) {
     this.changeEventHandlerMap = changeEventHandlerMap;
     this.encryptionService = encryptionService;
-    this.subscriptionSecretRepository = subscriptionSecretRepository;
+    this.subscriptionService = subscriptionService;
   }
 
   @Async
   public void pickHandlerAndProcessAsync(JsonNode event) {
-    String secretFromEvent = event.path("clientState").asText();
+    String eventSecret = event.path("clientState").asText();
     String subscriptionId = event.path("subscriptionId").asText();
-    Optional<String> storedSubscriptionSecret = subscriptionSecretRepository.get(subscriptionId);
-    if (storedSubscriptionSecret.isEmpty()
-        || !Objects.equals(secretFromEvent, storedSubscriptionSecret.get())) {
+    var subscription = subscriptionService.findByExternalId(subscriptionId);
+    if (subscription.isEmpty() || !Objects.equals(eventSecret, subscription.get().getSecret())) {
       throw new SecurityException("Invalid secret [clientState] field in the event, "
           + "can't prove identity, full event" + event.toPrettyString());
     }
