@@ -19,8 +19,7 @@ import tech.cusbo.msteams.demo.security.util.MsGraphMultiTenantKeyUtil;
 public class OAuthClientService implements OAuth2AuthorizedClientService {
 
   private final ClientRegistrationRepository clientRegistrationRepository;
-  private final OauthTokenRepository tokenRepository;
-  private final MsGraphOauthService oauthService;
+  private final MsGraphOauthTokenService oauthService;
 
   @Override
   @SneakyThrows
@@ -29,20 +28,22 @@ public class OAuthClientService implements OAuth2AuthorizedClientService {
       throw new RuntimeException("IT'S NOT DESIGNED TO HANDLE ANYTHING ELSE THEN AZURE");
     }
 
-    OAuth2AccessToken at = client.getAccessToken();
-    OAuth2RefreshToken rt = client.getRefreshToken();
-
-    OauthToken token = new OauthToken(
-        at.getTokenValue(),
-        rt != null ? rt.getTokenValue() : null,
-        at.getExpiresAt(),
-        OauthResource.MS_GRAPH
-    );
-
     OAuth2User authUser = (OAuth2User) principal.getPrincipal();
     String tenantId = (String) authUser.getAttributes().get("tid");
     String msUserId = (String) authUser.getAttributes().get("oid");
-    tokenRepository.save(MsGraphMultiTenantKeyUtil.getMultitenantId(tenantId, msUserId), token);
+    String multitenantId = MsGraphMultiTenantKeyUtil.getMultitenantId(tenantId, msUserId);
+
+    // If user logins from another UI while having valid token we sync tokens and set new one to db
+    OauthToken token = oauthService.findByMultitenantUserId(multitenantId)
+        .orElseGet(OauthToken::new);
+    OAuth2AccessToken at = client.getAccessToken();
+    OAuth2RefreshToken rt = client.getRefreshToken();
+    token.setAccessToken(at.getTokenValue());
+    token.setRefreshToken(rt != null ? rt.getTokenValue() : null);
+    token.setExpiresAt(at.getExpiresAt());
+    token.setResource(OauthResource.MS_GRAPH);
+    token.setMultitenantUserId(multitenantId);
+    oauthService.save(token);
   }
 
   @Override
@@ -52,26 +53,26 @@ public class OAuthClientService implements OAuth2AuthorizedClientService {
       throw new RuntimeException("IT'S NOT DESIGNED TO HANDLE ANYTHING ELSE THEN AZURE, "
           + "RECEIVED " + registrationId);
     }
-    Optional<OauthToken> opt = tokenRepository.get(principalName);
+    Optional<OauthToken> opt = oauthService.findByMultitenantUserId(principalName);
     if (opt.isEmpty()) {
       return null;
     }
 
     OauthToken token = opt.get();
-    if (needsRefresh(token)) {
-      OauthToken newToken = oauthService.refreshToken(token.refreshToken());
-      tokenRepository.save(principalName, newToken);
+    if (token.needsRefresh()) {
+      OauthToken newToken = oauthService.refreshToken(token);
       token = newToken;
     }
 
     OAuth2AccessToken accessToken = new OAuth2AccessToken(
         OAuth2AccessToken.TokenType.BEARER,
-        token.accessToken(),
+        token.getAccessToken(),
         Instant.now(),
-        token.expiresAt()
+        token.getExpiresAt()
     );
 
-    OAuth2RefreshToken refreshToken = new OAuth2RefreshToken(token.refreshToken(), Instant.now());
+    OAuth2RefreshToken refreshToken = new OAuth2RefreshToken(token.getRefreshToken(),
+        Instant.now());
     var registration = clientRegistrationRepository.findByRegistrationId(registrationId);
     return (T) new OAuth2AuthorizedClient(registration, principalName, accessToken, refreshToken);
   }
@@ -83,10 +84,7 @@ public class OAuthClientService implements OAuth2AuthorizedClientService {
           + "RECEIVED " + registrationId);
     }
 
-    tokenRepository.delete(principalName);
-  }
-
-  private boolean needsRefresh(OauthToken token) {
-    return Instant.now().isAfter(token.expiresAt().minusSeconds(600));
+    OauthToken token = oauthService.findByMultitenantUserId(principalName).orElseThrow();
+    oauthService.delete(token.getId());
   }
 }
