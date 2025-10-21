@@ -4,6 +4,7 @@ import com.azure.core.credential.AccessToken;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.microsoft.graph.models.Subscription;
 import com.microsoft.graph.serviceclient.GraphServiceClient;
+import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import lombok.RequiredArgsConstructor;
@@ -11,8 +12,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 import tech.cusbo.msteams.demo.inboundevent.subscription.GraphSubscriptionUserRepository;
+import tech.cusbo.msteams.demo.security.oauth.MsGraphOauthTokenService;
 import tech.cusbo.msteams.demo.security.oauth.OauthToken;
-import tech.cusbo.msteams.demo.security.oauth.OauthTokenRepository;
 
 @Slf4j
 @Component
@@ -20,7 +21,7 @@ import tech.cusbo.msteams.demo.security.oauth.OauthTokenRepository;
 public class ReauthorizedRequestEventHandler implements LifeCycleEventsHandler {
 
   private final GraphSubscriptionUserRepository subscriptionUserRepository;
-  private final OauthTokenRepository oauthTokenRepository;
+  private final MsGraphOauthTokenService oauthTokenService;
 
   @Override
   public void handle(JsonNode event) {
@@ -32,16 +33,22 @@ public class ReauthorizedRequestEventHandler implements LifeCycleEventsHandler {
         )
     );
 
-    OauthToken oauthToken = oauthTokenRepository.get(multitenantUserId).orElseThrow(
+    OauthToken oauthToken = oauthTokenService.findByMultitenantUserId(multitenantUserId)
+        .orElseThrow(
         () -> new RuntimeException(
             "Can't reauthorize, no valid user access token for USER " + multitenantUserId
         )
     );
+    if (oauthToken.needsRefresh()) {
+      oauthToken = oauthTokenService.refreshToken(oauthToken);
+    }
     Subscription prolongedSub = new Subscription();
     prolongedSub.setExpirationDateTime(OffsetDateTime.now().plusDays(2));
+    String requestAccessToken = oauthToken.getAccessToken();
+    Instant requestTokenExpiresAt = oauthToken.getExpiresAt();
     GraphServiceClient graphClient = new GraphServiceClient(request -> {
-      var tokenTtl = OffsetDateTime.ofInstant(oauthToken.expiresAt(), ZoneId.systemDefault());
-      var accessToken = new AccessToken(oauthToken.accessToken(), tokenTtl);
+      var tokenTtl = OffsetDateTime.ofInstant(requestTokenExpiresAt, ZoneId.systemDefault());
+      var accessToken = new AccessToken(requestAccessToken, tokenTtl);
       return Mono.just(accessToken);
     });
     graphClient
