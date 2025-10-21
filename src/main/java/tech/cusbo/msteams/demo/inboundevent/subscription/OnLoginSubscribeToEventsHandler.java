@@ -7,15 +7,12 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 import tech.cusbo.msteams.demo.security.oauth.MultiTenantAuthenticationToken;
-import tech.cusbo.msteams.demo.security.oauth.OauthResource;
-import tech.cusbo.msteams.demo.security.oauth.OauthToken;
 import tech.cusbo.msteams.demo.security.oauth.OauthTokenRepository;
 
 @Slf4j
@@ -53,19 +50,6 @@ public class OnLoginSubscribeToEventsHandler implements AuthenticationSuccessHan
         msUserId
     );
     SecurityContextHolder.getContext().setAuthentication(multiTenantAuth);
-    OAuth2AuthorizedClient client = clients.loadAuthorizedClient(
-        oauthToken.getAuthorizedClientRegistrationId(),
-        multiTenantAuth.getName()
-    );
-
-    OauthToken token = new OauthToken(
-        client.getAccessToken().getTokenValue(),
-        client.getRefreshToken() != null ? client.getRefreshToken().getTokenValue() : null,
-        client.getAccessToken().getExpiresAt(),
-        OauthResource.MS_GRAPH
-    );
-    tokenRepository.save(tenantId, msUserId, token);
-
     subscriptionService.ensureEventSubscriptionsForLoggedInUserAsync(
         tenantId, msUserId
     );

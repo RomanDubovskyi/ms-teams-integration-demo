@@ -7,12 +7,12 @@ import lombok.SneakyThrows;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
-import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2RefreshToken;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
+import tech.cusbo.msteams.demo.security.util.MsGraphMultiTenantKeyUtil;
 
 @Service
 @RequiredArgsConstructor
@@ -42,7 +42,7 @@ public class OAuthClientService implements OAuth2AuthorizedClientService {
     OAuth2User authUser = (OAuth2User) principal.getPrincipal();
     String tenantId = (String) authUser.getAttributes().get("tid");
     String msUserId = (String) authUser.getAttributes().get("oid");
-    tokenRepository.save(tenantId, msUserId, token);
+    tokenRepository.save(MsGraphMultiTenantKeyUtil.getMultitenantId(tenantId, msUserId), token);
   }
 
   @Override

@@ -16,6 +16,6 @@ public class MsGraphMultiTenantKeyUtil {
 
   public static String getTenantId(String multitenantId) {
     String tenantWithPrefix = multitenantId.split(KEY_SPLITERATOR)[0];
-    return tenantWithPrefix.substring(tenantWithPrefix.indexOf(KEY_PREFIX));
+    return tenantWithPrefix.substring(KEY_PREFIX.length());
   }
 }
