@@ -62,7 +62,7 @@ public class GraphSubscriptionService {
         internalSubInfo.setSecret(newSub.getClientState());
         String multitenantUserId = MsGraphMultiTenantKeyUtil.getMultitenantId(tenantId, msUserId);
         internalSubInfo.setMultitenantUserId(multitenantUserId);
-        internalSubInfo.setSubscriptionState(SubscriptionState.created);
+        internalSubInfo.setSubscriptionState(SubscriptionState.active);
         graphSubscriptionRepository.save(internalSubInfo);
       } catch (Exception e) {
         log.error("couldn't subscribe for ms resource {}", targetSub, e);
