@@ -9,6 +9,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -18,7 +19,10 @@ import org.hibernate.annotations.UpdateTimestamp;
 @Entity
 @Getter
 @Setter
-@Table(name = "graph_events_subscriptions")
+@Table(
+    name = "graph_events_subscriptions",
+    uniqueConstraints = @UniqueConstraint(name = "uk_graph_sub_external_id", columnNames = "externalId")
+)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class GraphEventsSubscription {
 
