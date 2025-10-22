@@ -18,7 +18,7 @@ import tech.cusbo.msteams.demo.security.oauth.MultiTenantAuthenticationToken;
 @RequiredArgsConstructor
 public class OnLoginSubscribeToEventsHandler implements AuthenticationSuccessHandler {
 
-  private final GraphApiSubscriptionService subscriptionService;
+  private final GraphSubscriptionService subscriptionService;
 
   @Override
   @SneakyThrows

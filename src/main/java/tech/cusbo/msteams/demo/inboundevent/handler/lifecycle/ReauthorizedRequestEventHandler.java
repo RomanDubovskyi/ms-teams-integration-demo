@@ -11,7 +11,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
-import tech.cusbo.msteams.demo.inboundevent.subscription.GraphSubscriptionUserRepository;
+import tech.cusbo.msteams.demo.inboundevent.subscription.GraphSubscriptionService;
+import tech.cusbo.msteams.demo.inboundevent.subscription.SubscriptionState;
 import tech.cusbo.msteams.demo.security.oauth.MsGraphOauthTokenService;
 import tech.cusbo.msteams.demo.security.oauth.OauthToken;
 
@@ -20,25 +21,25 @@ import tech.cusbo.msteams.demo.security.oauth.OauthToken;
 @RequiredArgsConstructor
 public class ReauthorizedRequestEventHandler implements LifeCycleEventsHandler {
 
-  private final GraphSubscriptionUserRepository subscriptionUserRepository;
+  private final GraphSubscriptionService subscriptionService;
   private final MsGraphOauthTokenService oauthTokenService;
 
   @Override
   public void handle(JsonNode event) {
     String subscriptionId = event.path("subscriptionId").asText();
     log.info("Reauthorization requested for subscription {}", subscriptionId);
-    String multitenantUserId = subscriptionUserRepository.get(subscriptionId).orElseThrow(
+    var subscription = subscriptionService.findByExternalId(subscriptionId).orElseThrow(
         () -> new RuntimeException(
             "Can't reauthorize, no USER for subscription " + subscriptionId
         )
     );
 
-    OauthToken oauthToken = oauthTokenService.findByMultitenantUserId(multitenantUserId)
+    OauthToken oauthToken = oauthTokenService
+        .findByMultitenantUserId(subscription.getMultitenantUserId())
         .orElseThrow(
-        () -> new RuntimeException(
-            "Can't reauthorize, no valid user access token for USER " + multitenantUserId
-        )
-    );
+            () -> new RuntimeException("Can't reauthorize, no valid user access token for USER "
+                + subscription.getMultitenantUserId())
+        );
     if (oauthToken.needsRefresh()) {
       oauthToken = oauthTokenService.refreshToken(oauthToken);
     }
@@ -55,11 +56,12 @@ public class ReauthorizedRequestEventHandler implements LifeCycleEventsHandler {
         .subscriptions()
         .bySubscriptionId(subscriptionId)
         .patch(prolongedSub);
-
+    subscription.setSubscriptionState(SubscriptionState.active);
+    subscriptionService.save(subscription);
     log.info(
-        "Successfully reauthorized subscription {} for {}",
+        "Successfully reauthorized subscription with external id {} for {}",
         subscriptionId,
-        multitenantUserId
+        subscription.getMultitenantUserId()
     );
   }
 
