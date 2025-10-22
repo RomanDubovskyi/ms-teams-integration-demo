@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
+import tech.cusbo.msteams.demo.inboundevent.subscription.GraphEventsSubscription;
 import tech.cusbo.msteams.demo.inboundevent.subscription.GraphSubscriptionService;
 import tech.cusbo.msteams.demo.inboundevent.subscription.SubscriptionState;
 import tech.cusbo.msteams.demo.security.oauth.MsGraphOauthTokenService;
@@ -28,7 +29,8 @@ public class ReauthorizedRequestEventHandler implements LifeCycleEventsHandler {
   public void handle(JsonNode event) {
     String subscriptionId = event.path("subscriptionId").asText();
     log.info("Reauthorization requested for subscription {}", subscriptionId);
-    var subscription = subscriptionService.findByExternalId(subscriptionId).orElseThrow(
+    GraphEventsSubscription subscription = subscriptionService.findByExternalId(subscriptionId)
+        .orElseThrow(
         () -> new RuntimeException(
             "Can't reauthorize, no USER for subscription " + subscriptionId
         )
