@@ -60,8 +60,7 @@ public class OAuthClientService implements OAuth2AuthorizedClientService {
 
     OauthToken token = opt.get();
     if (token.needsRefresh()) {
-      OauthToken newToken = oauthService.refreshToken(token);
-      token = newToken;
+      token = oauthService.refreshToken(token);
     }
 
     OAuth2AccessToken accessToken = new OAuth2AccessToken(
