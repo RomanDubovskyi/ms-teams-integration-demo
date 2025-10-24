@@ -9,15 +9,15 @@ import tech.cusbo.msteams.demo.inboundevent.GraphEventsEncryptionService;
 @TestConfiguration
 public class TestConfig {
 
-    @Bean
-    @Primary
-    public GraphEventsEncryptionService mockGraphEventsEncryptionService(ObjectMapper mapper) {
+  @Bean
+  @Primary
+  public GraphEventsEncryptionService mockGraphEventsEncryptionService(ObjectMapper mapper) {
 
-        return new GraphEventsEncryptionService(mapper) {
-            @Override
-            public void init() {
+    return new GraphEventsEncryptionService(mapper) {
+      @Override
+      public void init() {
 
-            }
-        };
-    }
+      }
+    };
+  }
 }
