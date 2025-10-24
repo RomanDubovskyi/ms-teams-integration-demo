@@ -32,7 +32,7 @@ public class TeamsController {
   @GetMapping("/joined")
   @SneakyThrows
   public ResponseEntity<List<Team>> getJoinedTeams() {
-    List<Team> joinedTeams= graphClient.me().joinedTeams().get().getValue();
+    List<Team> joinedTeams = graphClient.me().joinedTeams().get().getValue();
     return ResponseEntity.ok(joinedTeams);
   }
 

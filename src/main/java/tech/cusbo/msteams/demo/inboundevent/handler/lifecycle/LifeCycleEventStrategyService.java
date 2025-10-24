@@ -14,9 +14,9 @@ public class LifeCycleEventStrategyService {
   private final Map<String, LifeCycleEventsHandler> lifecycleEventHandlers;
 
   public LifeCycleEventStrategyService(
-      @Qualifier("lifecycleEventHandlers") Map<String, LifeCycleEventsHandler> lifecycleEventHandlers
+      @Qualifier("lifecycleEventHandlers") Map<String, LifeCycleEventsHandler> lifecycleHandlers
   ) {
-    this.lifecycleEventHandlers = lifecycleEventHandlers;
+    this.lifecycleEventHandlers = lifecycleHandlers;
   }
 
   @Async
