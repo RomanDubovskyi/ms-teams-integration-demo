@@ -31,10 +31,10 @@ public class ReauthorizedRequestEventHandler implements LifeCycleEventsHandler {
     log.info("Reauthorization requested for subscription {}", subscriptionId);
     GraphEventsSubscription subscription = subscriptionService.findByExternalId(subscriptionId)
         .orElseThrow(
-        () -> new RuntimeException(
-            "Can't reauthorize, no USER for subscription " + subscriptionId
-        )
-    );
+            () -> new RuntimeException(
+                "Can't reauthorize, no USER for subscription " + subscriptionId
+            )
+        );
 
     OauthToken oauthToken = oauthTokenService
         .findByMultitenantUserId(subscription.getMultitenantUserId())

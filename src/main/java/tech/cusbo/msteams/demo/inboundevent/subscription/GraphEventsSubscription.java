@@ -21,7 +21,10 @@ import org.hibernate.annotations.UpdateTimestamp;
 @Setter
 @Table(
     name = "graph_events_subscriptions",
-    uniqueConstraints = @UniqueConstraint(name = "uk_graph_sub_external_id", columnNames = "externalId")
+    uniqueConstraints = @UniqueConstraint(
+        name = "uk_graph_sub_external_id",
+        columnNames = "externalId"
+    )
 )
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class GraphEventsSubscription {
