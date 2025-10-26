@@ -1,10 +1,10 @@
 {
 	"info": {
-		"_postman_id": "45bc8ce2-9f9c-42f9-b993-d1e7581aa6b7",
+		"_postman_id": "01833c16-1aa2-4ceb-87e7-eeb19471ff46",
 		"name": "ms-teams-2.0",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "10436944",
-		"_collection_link": "https://full-stack-west-team.postman.co/workspace/full-stack-west-team-Workspace~b4b7a69d-a27f-46a7-8fd9-dcf742c47736/collection/10436944-45bc8ce2-9f9c-42f9-b993-d1e7581aa6b7?action=share&source=collection_link&creator=10436944"
+		"_collection_link": "https://full-stack-west-team.postman.co/workspace/full-stack-west-team-Workspace~b4b7a69d-a27f-46a7-8fd9-dcf742c47736/collection/10436944-01833c16-1aa2-4ceb-87e7-eeb19471ff46?action=share&source=collection_link&creator=10436944"
 	},
 	"item": [
 		{
@@ -80,12 +80,9 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "https://5e4b48fe9038.ngrok-free.app/users/guests",
-					"protocol": "https",
+					"raw": "{{baseURL}}/users/guests",
 					"host": [
-						"5e4b48fe9038",
-						"ngrok-free",
-						"app"
+						"{{baseURL}}"
 					],
 					"path": [
 						"users",
@@ -133,7 +130,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "",
+					"raw": "{\r\n    \"content\": \"Here goes your message content\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -141,16 +138,13 @@
 					}
 				},
 				"url": {
-					"raw": "https://5e4b48fe9038.ngrok-free.app/chats/19:25987e344add4fe3947f901deca6f808@thread.v2/messages",
-					"protocol": "https",
+					"raw": "{{baseURL}}/chats/{{chatId}}/messages",
 					"host": [
-						"5e4b48fe9038",
-						"ngrok-free",
-						"app"
+						"{{baseURL}}"
 					],
 					"path": [
 						"chats",
-						"19:25987e344add4fe3947f901deca6f808@thread.v2",
+						"{{chatId}}",
 						"messages"
 					]
 				}
@@ -163,12 +157,9 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "https://8069b2ef96ee.ngrok-free.app/teams/joined",
-					"protocol": "https",
+					"raw": "{{baseURL}}/teams/joined",
 					"host": [
-						"8069b2ef96ee",
-						"ngrok-free",
-						"app"
+						"{{baseURL}}"
 					],
 					"path": [
 						"teams",
@@ -184,16 +175,13 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "https://8069b2ef96ee.ngrok-free.app/teams/ac27b099-ef34-4349-b68b-3b7b7bd86805/channels",
-					"protocol": "https",
+					"raw": "{{baseURL}}/teams/{{teamId}}/channels",
 					"host": [
-						"8069b2ef96ee",
-						"ngrok-free",
-						"app"
+						"{{baseURL}}"
 					],
 					"path": [
 						"teams",
-						"ac27b099-ef34-4349-b68b-3b7b7bd86805",
+						"{{teamId}}",
 						"channels"
 					]
 				}
@@ -206,18 +194,15 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "https://8069b2ef96ee.ngrok-free.app/teams/ac27b099-ef34-4349-b68b-3b7b7bd86805/channels/19:_B7wU_po_wxEGdVka2oGz4fERkIuYUyyVZ2iTsWP4Eg1@thread.tacv2/messages",
-					"protocol": "https",
+					"raw": "{{baseURL}}/teams/{{teamId}}/channels/{{channelId}}/messages",
 					"host": [
-						"8069b2ef96ee",
-						"ngrok-free",
-						"app"
+						"{{baseURL}}"
 					],
 					"path": [
 						"teams",
-						"ac27b099-ef34-4349-b68b-3b7b7bd86805",
+						"{{teamId}}",
 						"channels",
-						"19:_B7wU_po_wxEGdVka2oGz4fERkIuYUyyVZ2iTsWP4Eg1@thread.tacv2",
+						"{{channelId}}",
 						"messages"
 					]
 				}
@@ -229,19 +214,25 @@
 			"request": {
 				"method": "POST",
 				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"content\": \"Here goes your message content\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
 				"url": {
-					"raw": "https://8069b2ef96ee.ngrok-free.app/teams/ac27b099-ef34-4349-b68b-3b7b7bd86805/channels/19:_B7wU_po_wxEGdVka2oGz4fERkIuYUyyVZ2iTsWP4Eg1@thread.tacv2/messages",
-					"protocol": "https",
+					"raw": "{{baseURL}}/teams/{{teamId}}/channels/{{channelId}}/messages",
 					"host": [
-						"8069b2ef96ee",
-						"ngrok-free",
-						"app"
+						"{{baseURL}}"
 					],
 					"path": [
 						"teams",
-						"ac27b099-ef34-4349-b68b-3b7b7bd86805",
+						"{{teamId}}",
 						"channels",
-						"19:_B7wU_po_wxEGdVka2oGz4fERkIuYUyyVZ2iTsWP4Eg1@thread.tacv2",
+						"{{channelId}}",
 						"messages"
 					]
 				}
