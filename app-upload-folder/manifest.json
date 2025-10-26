@@ -1,0 +1,54 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/teams/v1.19/MicrosoftTeams.schema.json",
+  "manifestVersion": "1.19",
+  "version": "1.0.0",
+  "icons": {
+    "color": "color.png",
+    "outline": "outline.png"
+  },
+  "id": "566777e0-8264-44ed-9e87-75b96c11d5d2",
+  "developer": {
+    "name": "Cusbo 3.0 version",
+    "websiteUrl": "https://yourdomain.com",
+    "privacyUrl": "https://yourdomain.com/privacy",
+    "termsOfUseUrl": "https://yourdomain.com/terms"
+  },
+  "name": {
+    "short": "Cusbo Teams Proxy",
+    "full": "Cusbo Teams Integration Demo"
+  },
+  "description": {
+    "short": "Proof-of-concept Graph proxy",
+    "full": "App that reads and writes Teams data via Microsoft Graph APIs."
+  },
+  "accentColor": "#FFFFFF",
+  "authorization": {
+    "permissions": {
+      "resourceSpecific": [
+        { "name": "Chat.ReadWrite.All", "type": "Application" },
+        { "name": "Chat.Read.All", "type": "Application" },
+        { "name": "Channel.ReadBasic.All", "type": "Application" },
+        { "name": "ChannelMessage.Read.All", "type": "Application" },
+        { "name": "Group.ReadWrite.All", "type": "Application" },
+        { "name": "Team.ReadBasic.All", "type": "Application" },
+        { "name": "User.Read.All", "type": "Application" },
+        { "name": "Directory.Read.All", "type": "Application" },
+        { "name": "openid", "type": "Delegated" },
+        { "name": "profile", "type": "Delegated" },
+        { "name": "email", "type": "Delegated" },
+        { "name": "offline_access", "type": "Delegated" },
+        { "name": "User.Read", "type": "Delegated" },
+        { "name": "Chat.ReadWrite", "type": "Delegated" },
+        { "name": "ChatMessage.Send", "type": "Delegated" },
+        { "name": "Group.ReadWrite.All", "type": "Delegated" }
+      ]
+    }
+  },
+  "validDomains": [
+    "eab53e719355.ngrok-free.app"
+  ],
+  "webApplicationInfo": {
+    "id": "566777e0-8264-44ed-9e87-75b96c11d5d2",
+    "resource": "https://graph.microsoft.com"
+  }
+}
