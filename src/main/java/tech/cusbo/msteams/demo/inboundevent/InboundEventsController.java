@@ -75,7 +75,7 @@ public class InboundEventsController {
     for (JsonNode event : events.path("value")) {
       String lifecycleEvent = event.path("lifecycleEvent").asText();
       // For auth challenge we can't use async in service,
-      // hence it hat to be returned right away
+      // hence it has to be returned right away
       if ("authenticationChallenge".equalsIgnoreCase(lifecycleEvent)) {
         String challenge = event.path("resourceData").path("challenge").asText();
         log.info("AUTH CHALLENGE, responding with {}", challenge);

@@ -1,0 +1,274 @@
+{
+	"info": {
+		"_postman_id": "45bc8ce2-9f9c-42f9-b993-d1e7581aa6b7",
+		"name": "ms-teams-2.0",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "10436944",
+		"_collection_link": "https://full-stack-west-team.postman.co/workspace/full-stack-west-team-Workspace~b4b7a69d-a27f-46a7-8fd9-dcf742c47736/collection/10436944-45bc8ce2-9f9c-42f9-b993-d1e7581aa6b7?action=share&source=collection_link&creator=10436944"
+	},
+	"item": [
+		{
+			"name": "chats",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "",
+						"value": "",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"url": {
+					"raw": "{{baseURL}}/chats",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"chats"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "start-chat",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"topic\": \"Chat creation control check 2\",\r\n    \"type\": \"Group\",\r\n    \"memberIds\": [\r\n        \"persons-id\" // Can get from users request\r\n    ]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseURL}}/chats",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"chats"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "users",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseURL}}/users",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"users"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "guest-users",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://5e4b48fe9038.ngrok-free.app/users/guests",
+					"protocol": "https",
+					"host": [
+						"5e4b48fe9038",
+						"ngrok-free",
+						"app"
+					],
+					"path": [
+						"users",
+						"guests"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "chat-messages",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseURL}}/chats/{{chatId}}/messages",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"chats",
+						"{{chatId}}",
+						"messages"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "post-to-chat",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://5e4b48fe9038.ngrok-free.app/chats/19:25987e344add4fe3947f901deca6f808@thread.v2/messages",
+					"protocol": "https",
+					"host": [
+						"5e4b48fe9038",
+						"ngrok-free",
+						"app"
+					],
+					"path": [
+						"chats",
+						"19:25987e344add4fe3947f901deca6f808@thread.v2",
+						"messages"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get-joined-teams",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://8069b2ef96ee.ngrok-free.app/teams/joined",
+					"protocol": "https",
+					"host": [
+						"8069b2ef96ee",
+						"ngrok-free",
+						"app"
+					],
+					"path": [
+						"teams",
+						"joined"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get-team-channels",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://8069b2ef96ee.ngrok-free.app/teams/ac27b099-ef34-4349-b68b-3b7b7bd86805/channels",
+					"protocol": "https",
+					"host": [
+						"8069b2ef96ee",
+						"ngrok-free",
+						"app"
+					],
+					"path": [
+						"teams",
+						"ac27b099-ef34-4349-b68b-3b7b7bd86805",
+						"channels"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get-team-channel-messages",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://8069b2ef96ee.ngrok-free.app/teams/ac27b099-ef34-4349-b68b-3b7b7bd86805/channels/19:_B7wU_po_wxEGdVka2oGz4fERkIuYUyyVZ2iTsWP4Eg1@thread.tacv2/messages",
+					"protocol": "https",
+					"host": [
+						"8069b2ef96ee",
+						"ngrok-free",
+						"app"
+					],
+					"path": [
+						"teams",
+						"ac27b099-ef34-4349-b68b-3b7b7bd86805",
+						"channels",
+						"19:_B7wU_po_wxEGdVka2oGz4fERkIuYUyyVZ2iTsWP4Eg1@thread.tacv2",
+						"messages"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "post-to-team-channel-messages",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "https://8069b2ef96ee.ngrok-free.app/teams/ac27b099-ef34-4349-b68b-3b7b7bd86805/channels/19:_B7wU_po_wxEGdVka2oGz4fERkIuYUyyVZ2iTsWP4Eg1@thread.tacv2/messages",
+					"protocol": "https",
+					"host": [
+						"8069b2ef96ee",
+						"ngrok-free",
+						"app"
+					],
+					"path": [
+						"teams",
+						"ac27b099-ef34-4349-b68b-3b7b7bd86805",
+						"channels",
+						"19:_B7wU_po_wxEGdVka2oGz4fERkIuYUyyVZ2iTsWP4Eg1@thread.tacv2",
+						"messages"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "baseURL",
+			"value": "",
+			"type": "default"
+		},
+		{
+			"key": "chatId",
+			"value": "",
+			"type": "default"
+		},
+		{
+			"key": "teamId",
+			"value": "",
+			"type": "default"
+		},
+		{
+			"key": "channelId",
+			"value": "",
+			"type": "default"
+		}
+	]
+}
