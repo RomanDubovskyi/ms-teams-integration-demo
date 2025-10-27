@@ -51,7 +51,7 @@ You must create a new app registration in your Azure tenant.
    * Go to Manage -> API permissions -> Add a permission -> Microsoft Graph
      * Delegated: `openid`, `profile`, `email`, `offline_access`, `User.Read.All`, `Chat.ReadWrite`, `ChatMessage.Send`, `Group.ReadWrite.All`, `ChannelMessage.Read.All`
      * App permissions: `Chat.ReadWrite.All`, `Chat.Read.All`, `Channel.ReadBasic.All`, `ChannelMessage.Read.All`,  `Group.ReadWrite.All`, `Team.ReadBasic.All`, `User.Read.All`, `Directory.Read.All`
-   * At API permissions if you're admin choose option `Grant admin consent for <your tenant>`
+   * At API permissions if you're admin choose option `Grant admin consent for <your tenant>`. If you're not an admin ask your org admin to give consent.
 
 ## Teams App (Manifest)
 
@@ -62,7 +62,7 @@ This allows you to add a custom app without completing verification of the app b
 
 * Go to `app-upload-folder` in the root and open `manifest.json`
 * `id`, `webApplicationInfo.id` should equal your `MS_APP_ID`.
-* `validDomains` must include your current ngrok hostname (e.g., `xxxx.ngrok-free.app`).
+* `validDomains` must include your current ngrok hostname (e.g. `"validDomains": ["eab53e719355.ngrok-free.app"]`,).
 * Zip the manifest together with icons (`color.png`, `outline.png`).
 * Upload the custom app via Teams Admin Center or directly in Teams.
 * Admin must allow the app and grant required permissions.
