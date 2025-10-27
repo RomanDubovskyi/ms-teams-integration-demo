@@ -7,23 +7,36 @@ import com.microsoft.graph.serviceclient.GraphServiceClient;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 import tech.cusbo.msteams.demo.inboundevent.subscription.GraphEventsSubscription;
 import tech.cusbo.msteams.demo.inboundevent.subscription.GraphSubscriptionService;
+import tech.cusbo.msteams.demo.inboundevent.subscription.SubscriptionOwnerType;
 import tech.cusbo.msteams.demo.inboundevent.subscription.SubscriptionState;
 import tech.cusbo.msteams.demo.security.oauth.MsGraphOauthTokenService;
 import tech.cusbo.msteams.demo.security.oauth.OauthToken;
 
 @Slf4j
 @Component
-@RequiredArgsConstructor
 public class ReauthorizedRequestEventHandler implements LifeCycleEventsHandler {
 
   private final GraphSubscriptionService subscriptionService;
   private final MsGraphOauthTokenService oauthTokenService;
+  private final GraphServiceClient appGraphClient;
+
+
+  public ReauthorizedRequestEventHandler(
+      @Qualifier("appScopeServiceClient") GraphServiceClient appGraphClient,
+      GraphSubscriptionService subscriptionService,
+      MsGraphOauthTokenService oauthTokenService
+
+  ) {
+    this.appGraphClient = appGraphClient;
+    this.subscriptionService = subscriptionService;
+    this.oauthTokenService = oauthTokenService;
+  }
 
   @Override
   public void handle(JsonNode event) {
@@ -36,24 +49,11 @@ public class ReauthorizedRequestEventHandler implements LifeCycleEventsHandler {
             )
         );
 
-    OauthToken oauthToken = oauthTokenService
-        .findByMultitenantUserId(subscription.getMultitenantUserId())
-        .orElseThrow(
-            () -> new RuntimeException("Can't reauthorize, no valid user access token for USER "
-                + subscription.getMultitenantUserId())
-        );
-    if (oauthToken.needsRefresh()) {
-      oauthToken = oauthTokenService.refreshToken(oauthToken);
-    }
+    GraphServiceClient graphClient = subscription.getOwnerType() == SubscriptionOwnerType.app
+        ? appGraphClient
+        : getRequestScopedClient(subscription);
     Subscription prolongedSub = new Subscription();
     prolongedSub.setExpirationDateTime(OffsetDateTime.now().plusDays(2));
-    String requestAccessToken = oauthToken.getAccessToken();
-    Instant requestTokenExpiresAt = oauthToken.getExpiresAt();
-    GraphServiceClient graphClient = new GraphServiceClient(request -> {
-      var tokenTtl = OffsetDateTime.ofInstant(requestTokenExpiresAt, ZoneId.systemDefault());
-      var accessToken = new AccessToken(requestAccessToken, tokenTtl);
-      return Mono.just(accessToken);
-    });
     graphClient
         .subscriptions()
         .bySubscriptionId(subscriptionId)
@@ -65,6 +65,25 @@ public class ReauthorizedRequestEventHandler implements LifeCycleEventsHandler {
         subscriptionId,
         subscription.getMultitenantUserId()
     );
+  }
+
+  private GraphServiceClient getRequestScopedClient(GraphEventsSubscription subscription) {
+    OauthToken oauthToken = oauthTokenService
+        .findByMultitenantUserId(subscription.getMultitenantUserId())
+        .orElseThrow(
+            () -> new RuntimeException("Can't reauthorize, no valid user access token for USER "
+                + subscription.getMultitenantUserId())
+        );
+    if (oauthToken.needsRefresh()) {
+      oauthToken = oauthTokenService.refreshToken(oauthToken);
+    }
+    String requestAccessToken = oauthToken.getAccessToken();
+    Instant requestTokenExpiresAt = oauthToken.getExpiresAt();
+    return new GraphServiceClient(request -> {
+      var tokenTtl = OffsetDateTime.ofInstant(requestTokenExpiresAt, ZoneId.systemDefault());
+      var accessToken = new AccessToken(requestAccessToken, tokenTtl);
+      return Mono.just(accessToken);
+    });
   }
 
   @Override

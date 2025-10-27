@@ -8,8 +8,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -19,51 +19,106 @@ import tech.cusbo.msteams.demo.security.util.SecureRandomGenerator;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
 public class GraphSubscriptionService {
 
   private static final int ALLOWED_DAYS_BEFORE_EXP = 2;
   private final GraphSubscriptionRepository graphSubscriptionRepository;
   private final GraphEventsEncryptionService encryptionKeyProvider;
-  private final GraphServiceClient graphClient;
+  private final GraphServiceClient oauthGraphClient;
+  private final GraphServiceClient appGraphClient;
 
   @Value("${api.graph.inbound.webhook-url}")
   private String apiInboundEventsUrl;
   @Value("${api.graph.lifecycle.webhook-url}")
   private String apiInboundLifeCycleEventsUrl;
+  @Value("${teams.app.tenant-id}")
+  private String appTenantId;
+  @Value("${teams.app.id}")
+  private String appId;
 
-  private final List<GraphSubscriptionResourceDto> defaultSubs = List.of(
+  private final List<GraphSubscriptionResourceDto> userDefaultSubs = List.of(
+      new GraphSubscriptionResourceDto("/me/chats", List.of("created", "updated", "deleted")),
+      new GraphSubscriptionResourceDto("/me/chats/getAllMessages", List.of("created"))
+  );
+
+  private final List<GraphSubscriptionResourceDto> appDefaultSubs = List.of(
+      new GraphSubscriptionResourceDto("/teams/getAllMessages", List.of("created", "updated")),
+      new GraphSubscriptionResourceDto("/teams", List.of("created", "updated", "deleted")),
       new GraphSubscriptionResourceDto(
-          "/me/chats",
+          "/teams/getAllMembers",
           List.of("created", "updated", "deleted")
       ),
       new GraphSubscriptionResourceDto(
-          "/me/chats/getAllMessages",
-          List.of("created")
+          "/teams/getAllChannels",
+          List.of("created", "updated", "deleted")
       )
   );
 
-  @Async
-  public void ensureEventSubscriptionsForLoggedInUserAsync(String tenantId, String msUserId) {
-    List<Subscription> currSubs = graphClient.subscriptions().get().getValue();
-    Map<String, Subscription> currSubResourceMap = currSubs.stream()
-        .collect(Collectors.toMap(Subscription::getResource, Function.identity()));
+  public GraphSubscriptionService(
+      GraphSubscriptionRepository graphSubscriptionRepository,
+      GraphEventsEncryptionService encryptionKeyProvider,
+      @Qualifier("oauthScopeServiceClient") GraphServiceClient oauthGraphClient,
+      @Qualifier("appScopeServiceClient") GraphServiceClient appGraphClient
+  ) {
+    this.graphSubscriptionRepository = graphSubscriptionRepository;
+    this.encryptionKeyProvider = encryptionKeyProvider;
+    this.oauthGraphClient = oauthGraphClient;
+    this.appGraphClient = appGraphClient;
+  }
 
-    for (GraphSubscriptionResourceDto targetSub : defaultSubs) {
+  public void ensureAppSubscriptions() {
+    List<Subscription> currSubs = appGraphClient.subscriptions().get().getValue();
+    Map<String, Subscription> currSubResourceMap = currSubs.stream()
+        .collect(Collectors.toMap(Subscription::getResource, Function.identity(), (a, b) -> a));
+
+    for (GraphSubscriptionResourceDto targetSub : appDefaultSubs) {
       if (currSubResourceMap.containsKey(targetSub.resource())) {
         continue;
       }
 
       try {
-        var newSub = sendCreateSubscriptionRequest(targetSub);
+        var newSub = sendCreateSubscriptionRequest(appGraphClient, targetSub);
+        log.info("created app sub for resource={}, id={}", targetSub.resource(), newSub.getId());
+
+        GraphEventsSubscription appCurrentSub = new GraphEventsSubscription();
+        appCurrentSub.setExternalId(newSub.getId());
+        appCurrentSub.setSecret(newSub.getClientState());
+        String appMultitenantId = MsGraphMultiTenantKeyUtil.getMultitenantId(appTenantId, appId);
+        appCurrentSub.setMultitenantUserId(appMultitenantId);
+        appCurrentSub.setSubscriptionState(SubscriptionState.active);
+        appCurrentSub.setOwnerType(SubscriptionOwnerType.app);
+        graphSubscriptionRepository.save(appCurrentSub);
+
+      } catch (Exception e) {
+        throw new RuntimeException(
+            "Can't create new app subscription " + targetSub + " for app with id " + appId
+        );
+      }
+    }
+  }
+
+  @Async
+  public void ensureEventSubscriptionsForLoggedInUserAsync(String tenantId, String msUserId) {
+    List<Subscription> currSubs = oauthGraphClient.subscriptions().get().getValue();
+    Map<String, Subscription> currSubResourceMap = currSubs.stream()
+        .collect(Collectors.toMap(Subscription::getResource, Function.identity()));
+
+    for (GraphSubscriptionResourceDto targetSub : userDefaultSubs) {
+      if (currSubResourceMap.containsKey(targetSub.resource())) {
+        continue;
+      }
+
+      try {
+        var newSub = sendCreateSubscriptionRequest(oauthGraphClient, targetSub);
         log.info("created sub for user {}, sub id: {}", msUserId, newSub.getId());
-        GraphEventsSubscription internalSubInfo = new GraphEventsSubscription();
-        internalSubInfo.setExternalId(newSub.getId());
-        internalSubInfo.setSecret(newSub.getClientState());
+        GraphEventsSubscription userCurrentSub = new GraphEventsSubscription();
+        userCurrentSub.setExternalId(newSub.getId());
+        userCurrentSub.setSecret(newSub.getClientState());
         String multitenantUserId = MsGraphMultiTenantKeyUtil.getMultitenantId(tenantId, msUserId);
-        internalSubInfo.setMultitenantUserId(multitenantUserId);
-        internalSubInfo.setSubscriptionState(SubscriptionState.active);
-        graphSubscriptionRepository.save(internalSubInfo);
+        userCurrentSub.setMultitenantUserId(multitenantUserId);
+        userCurrentSub.setSubscriptionState(SubscriptionState.active);
+        userCurrentSub.setOwnerType(SubscriptionOwnerType.user);
+        graphSubscriptionRepository.save(userCurrentSub);
       } catch (Exception e) {
         log.error("couldn't subscribe for ms resource {}", targetSub, e);
       }
@@ -71,6 +126,7 @@ public class GraphSubscriptionService {
   }
 
   private Subscription sendCreateSubscriptionRequest(
+      GraphServiceClient client,
       GraphSubscriptionResourceDto subscriptionResourceDto
   ) {
     Subscription subscription = new Subscription();
@@ -89,7 +145,7 @@ public class GraphSubscriptionService {
     subscription.setEncryptionCertificate(encryptionKeyProvider.getPublicKeyBase64());
     subscription.setEncryptionCertificateId(encryptionKeyProvider.getEncryptionKeyId());
 
-    return graphClient.subscriptions().post(subscription);
+    return client.subscriptions().post(subscription);
   }
 
   public Optional<GraphEventsSubscription> findByExternalId(String subscriptionId) {

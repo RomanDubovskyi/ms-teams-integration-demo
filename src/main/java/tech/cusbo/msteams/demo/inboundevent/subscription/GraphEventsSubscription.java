@@ -39,6 +39,8 @@ public class GraphEventsSubscription {
   private String multitenantUserId;
   @Enumerated(value = EnumType.STRING)
   private SubscriptionState subscriptionState;
+  @Enumerated(value = EnumType.STRING)
+  private SubscriptionOwnerType ownerType;
   @CreationTimestamp
   private Instant createdAt;
   @UpdateTimestamp
