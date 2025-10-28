@@ -31,7 +31,6 @@ public class ReauthorizedRequestEventHandler implements LifeCycleEventsHandler {
       @Qualifier("appScopeServiceClient") GraphServiceClient appGraphClient,
       GraphSubscriptionService subscriptionService,
       MsGraphOauthTokenService oauthTokenService
-
   ) {
     this.appGraphClient = appGraphClient;
     this.subscriptionService = subscriptionService;

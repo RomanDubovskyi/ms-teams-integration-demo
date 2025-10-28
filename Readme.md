@@ -49,8 +49,10 @@ You must create a new app registration in your Azure tenant.
 3. API permissions (Grant admin consent):
 
    * Go to Manage -> API permissions -> Add a permission -> Microsoft Graph
-     * Delegated: `openid`, `profile`, `email`, `offline_access`, `User.Read.All`, `Chat.ReadWrite`, `ChatMessage.Send`, `Group.ReadWrite.All`, `ChannelMessage.Read.All`
-     * App permissions: `Chat.ReadWrite.All`, `Chat.Read.All`, `Channel.ReadBasic.All`, `ChannelMessage.Read.All`,  `Group.ReadWrite.All`, `Team.ReadBasic.All`, `User.Read.All`, `Directory.Read.All`
+     * Delegated: `openid`, `profile`, `email`, `offline_access`, `User.Read.All`, `Chat.ReadWrite`,
+`ChatMessage.Send`, `Group.ReadWrite.All`, `ChannelMessage.Read.All`
+     * App permissions: `Chat.ReadWrite.All`, `Chat.Read.All`, `Channel.ReadBasic.All`, `ChannelMessage.Read.All`,  `Group.ReadWrite.All`, `Team.ReadBasic.All`,
+`TeamMember.Read.All`, `User.Read.All`, `Directory.Read.All`
    * At API permissions if you're admin choose option `Grant admin consent for <your tenant>`. If you're not an admin ask your org admin to give consent.
 
 ## Teams App (Manifest)
