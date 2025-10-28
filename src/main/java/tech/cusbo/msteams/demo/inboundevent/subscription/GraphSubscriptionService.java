@@ -66,7 +66,15 @@ public class GraphSubscriptionService {
     this.appGraphClient = appGraphClient;
   }
 
-  public void ensureAppSubscriptions() {
+  public Optional<GraphEventsSubscription> findByExternalId(String subscriptionId) {
+    return graphSubscriptionRepository.findByExternalId(subscriptionId);
+  }
+
+  public void save(GraphEventsSubscription subscription) {
+    graphSubscriptionRepository.save(subscription);
+  }
+
+  public void ensureEventSubscriptionsByApp() {
     List<Subscription> currSubs = appGraphClient.subscriptions().get().getValue();
     Map<String, Subscription> currSubResourceMap = currSubs.stream()
         .collect(Collectors.toMap(Subscription::getResource, Function.identity(), (a, b) -> a));
@@ -98,7 +106,7 @@ public class GraphSubscriptionService {
   }
 
   @Async
-  public void ensureEventSubscriptionsForLoggedInUserAsync(String tenantId, String msUserId) {
+  public void ensureEventSubscriptionsByUserAsync(String tenantId, String msUserId) {
     List<Subscription> currSubs = oauthGraphClient.subscriptions().get().getValue();
     Map<String, Subscription> currSubResourceMap = currSubs.stream()
         .collect(Collectors.toMap(Subscription::getResource, Function.identity()));
@@ -146,13 +154,5 @@ public class GraphSubscriptionService {
     subscription.setEncryptionCertificateId(encryptionKeyProvider.getEncryptionKeyId());
 
     return client.subscriptions().post(subscription);
-  }
-
-  public Optional<GraphEventsSubscription> findByExternalId(String subscriptionId) {
-    return graphSubscriptionRepository.findByExternalId(subscriptionId);
-  }
-
-  public void save(GraphEventsSubscription subscription) {
-    graphSubscriptionRepository.save(subscription);
   }
 }

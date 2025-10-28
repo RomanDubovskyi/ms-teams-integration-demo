@@ -7,15 +7,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/admin/subscriptions")
+@RequestMapping("/subscriptions")
 @RequiredArgsConstructor
-public class SubscriptionAdminController {
+public class SubscriptionController {
 
   private final GraphSubscriptionService subscriptionService;
 
   @PostMapping("/ensure")
   public ResponseEntity<?> subscribeOrgWide() {
-    subscriptionService.ensureAppSubscriptions();
+    subscriptionService.ensureEventSubscriptionsByApp();
     return ResponseEntity.ok("Org-wide subscriptions created/ensured.");
   }
 }
