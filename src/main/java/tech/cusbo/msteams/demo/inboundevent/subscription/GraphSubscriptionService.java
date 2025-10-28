@@ -99,7 +99,7 @@ public class GraphSubscriptionService {
 
       } catch (Exception e) {
         throw new RuntimeException(
-            "Can't create new app subscription " + targetSub + " for app with id " + appId
+            "Can't create new app subscription " + targetSub + " for app with id " + appId, e
         );
       }
     }

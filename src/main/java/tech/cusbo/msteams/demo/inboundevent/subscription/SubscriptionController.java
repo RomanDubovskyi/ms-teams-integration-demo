@@ -14,7 +14,7 @@ public class SubscriptionController {
   private final GraphSubscriptionService subscriptionService;
 
   @PostMapping("/ensure")
-  public ResponseEntity<?> subscribeOrgWide() {
+  public ResponseEntity<String> subscribeOrgWide() {
     subscriptionService.ensureEventSubscriptionsByApp();
     return ResponseEntity.ok("Org-wide subscriptions created/ensured.");
   }
