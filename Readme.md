@@ -119,12 +119,12 @@ Any time ngrok restarts, update these values.
 
 Import `postman/ms-teams-integraion-test.json`. It contains example requests. 
 User sign-in: visit the app and log in with a user from your tenant. Then through dev console
-in browser copy the `JSESSIONID` cookie and attach it in postman. 
+in browser copy the `JSESSIONID` cookie and attach it in postman, or you can use Postman interceptor
+to sync cookies. 
 
 
 ## Current Limitations
 
-* Graph subscription to channels event not yet implemented.
 * Keys and secrets stored in env vars for local testing.
 * Postman examples and manifest require manual URL updates per ngrok session.
 * Inbound event deduplication for multiple operators in single group is not implemented.
