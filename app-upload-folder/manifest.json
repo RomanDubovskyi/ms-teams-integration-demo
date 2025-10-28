@@ -26,11 +26,11 @@
     "permissions": {
       "resourceSpecific": [
         { "name": "Chat.ReadWrite.All", "type": "Application" },
-        { "name": "Chat.Read.All", "type": "Application" },
         { "name": "Channel.ReadBasic.All", "type": "Application" },
         { "name": "ChannelMessage.Read.All", "type": "Application" },
         { "name": "Group.ReadWrite.All", "type": "Application" },
         { "name": "Team.ReadBasic.All", "type": "Application" },
+        { "name": "TeamMember.Read.All", "type": "Application" },
         { "name": "User.Read.All", "type": "Application" },
         { "name": "Directory.Read.All", "type": "Application" },
         { "name": "openid", "type": "Delegated" },

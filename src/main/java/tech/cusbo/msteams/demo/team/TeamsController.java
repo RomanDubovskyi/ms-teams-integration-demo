@@ -1,6 +1,5 @@
-package tech.cusbo.msteams.demo.chat;
+package tech.cusbo.msteams.demo.team;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.microsoft.graph.models.BodyType;
 import com.microsoft.graph.models.Channel;
 import com.microsoft.graph.models.ChatMessage;
@@ -27,7 +26,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class TeamsController {
 
   private final GraphServiceClient graphClient;
-  private final ObjectMapper objectMapper;
 
   @GetMapping("/joined")
   @SneakyThrows
@@ -70,7 +68,7 @@ public class TeamsController {
 
   @PostMapping("/{teamId}/channels/{channelId}/messages")
   @SneakyThrows
-  public ResponseEntity<ChatMessage> postMessageToChannel(
+  public ResponseEntity<ChatMessage> postMessageToTeamChannel(
       @PathVariable("teamId") String teamId,
       @PathVariable("channelId") String channelId,
       @RequestBody Map<String, String> postMessageBody

@@ -8,7 +8,7 @@
 	},
 	"item": [
 		{
-			"name": "chats",
+			"name": "get-my-chats",
 			"request": {
 				"method": "GET",
 				"header": [
@@ -58,7 +58,7 @@
 			"response": []
 		},
 		{
-			"name": "users",
+			"name": "get-users",
 			"request": {
 				"method": "GET",
 				"header": [],
@@ -75,7 +75,7 @@
 			"response": []
 		},
 		{
-			"name": "guest-users",
+			"name": "get-guest-users",
 			"request": {
 				"method": "GET",
 				"header": [],
@@ -93,7 +93,7 @@
 			"response": []
 		},
 		{
-			"name": "chat-messages",
+			"name": "get-chat-messages",
 			"protocolProfileBehavior": {
 				"disableBodyPruning": true
 			},
@@ -234,6 +234,25 @@
 						"channels",
 						"{{channelId}}",
 						"messages"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "ensure-app-event-subscriptions",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{baseURL}}/api/subscriptions/ensure",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"api",
+						"subscriptions",
+						"ensure"
 					]
 				}
 			},

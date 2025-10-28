@@ -46,7 +46,7 @@ public class OnLoginSubscribeToEventsHandler implements AuthenticationSuccessHan
         msUserId
     );
     SecurityContextHolder.getContext().setAuthentication(multiTenantAuth);
-    subscriptionService.ensureEventSubscriptionsForLoggedInUserAsync(
+    subscriptionService.ensureEventSubscriptionsByUserAsync(
         tenantId, msUserId
     );
     request.getRequestDispatcher("/").forward(request, response);

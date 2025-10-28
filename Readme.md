@@ -49,8 +49,10 @@ You must create a new app registration in your Azure tenant.
 3. API permissions (Grant admin consent):
 
    * Go to Manage -> API permissions -> Add a permission -> Microsoft Graph
-     * Delegated: `openid`, `profile`, `email`, `offline_access`, `User.Read.All`, `Chat.ReadWrite`, `ChatMessage.Send`, `Group.ReadWrite.All`, `ChannelMessage.Read.All`
-     * App permissions: `Chat.ReadWrite.All`, `Chat.Read.All`, `Channel.ReadBasic.All`, `ChannelMessage.Read.All`,  `Group.ReadWrite.All`, `Team.ReadBasic.All`, `User.Read.All`, `Directory.Read.All`
+     * Delegated: `openid`, `profile`, `email`, `offline_access`, `User.Read.All`, `Chat.ReadWrite`,
+`ChatMessage.Send`, `Group.ReadWrite.All`, `ChannelMessage.Read.All`
+     * App permissions: `Chat.ReadWrite.All`, `Chat.Read.All`, `Channel.ReadBasic.All`, `ChannelMessage.Read.All`,  `Group.ReadWrite.All`, `Team.ReadBasic.All`,
+`TeamMember.Read.All`, `User.Read.All`, `Directory.Read.All`
    * At API permissions if you're admin choose option `Grant admin consent for <your tenant>`. If you're not an admin ask your org admin to give consent.
 
 ## Teams App (Manifest)
@@ -119,12 +121,11 @@ Any time ngrok restarts, update these values.
 
 Import `postman/ms-teams-integraion-test.json`. It contains example requests. 
 User sign-in: visit the app and log in with a user from your tenant. Then through dev console
-in browser copy the `JSESSIONID` cookie and attach it in postman. 
-
+in browser copy the `JSESSIONID` cookie and attach it in postman, or you can use Postman interceptor
+to sync cookies.
 
 ## Current Limitations
 
-* Graph subscription to channels event not yet implemented.
 * Keys and secrets stored in env vars for local testing.
 * Postman examples and manifest require manual URL updates per ngrok session.
 * Inbound event deduplication for multiple operators in single group is not implemented.

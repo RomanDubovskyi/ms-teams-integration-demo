@@ -1,4 +1,4 @@
-package tech.cusbo.msteams.demo.users;
+package tech.cusbo.msteams.demo.user;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.microsoft.graph.models.User;
