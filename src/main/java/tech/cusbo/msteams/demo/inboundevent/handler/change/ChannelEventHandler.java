@@ -18,8 +18,8 @@ public class ChannelEventHandler implements ChangeEventHandler {
 
   @Override
   @SneakyThrows
-  public void handle(ParseNode parseNode, ChangeNotification event) {
-    Channel channel = parseNode.getObjectValue(Channel::createFromDiscriminatorValue);
+  public void handle(ParseNode decryptedContent, ChangeNotification event) {
+    Channel channel = decryptedContent.getObjectValue(Channel::createFromDiscriminatorValue);
     log.info(
         "GOT the following with content to handle {} \n with action {}",
         objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(channel),

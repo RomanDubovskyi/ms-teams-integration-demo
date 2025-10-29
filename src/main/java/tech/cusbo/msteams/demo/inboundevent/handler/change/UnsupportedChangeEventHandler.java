@@ -8,8 +8,8 @@ import org.springframework.stereotype.Component;
 public class UnsupportedChangeEventHandler implements ChangeEventHandler {
 
   @Override
-  public void handle(ParseNode parseNode, ChangeNotification event) {
-    throw new RuntimeException("GOT unsupported event " + parseNode);
+  public void handle(ParseNode decryptedContent, ChangeNotification event) {
+    throw new RuntimeException("GOT unsupported event " + decryptedContent);
   }
 
   @Override

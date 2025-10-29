@@ -5,7 +5,7 @@ import com.microsoft.kiota.serialization.ParseNode;
 
 public interface ChangeEventHandler {
 
-  void handle(ParseNode parseNode, ChangeNotification event);
+  void handle(ParseNode decryptedContent, ChangeNotification event);
 
   String getODataType();
 }

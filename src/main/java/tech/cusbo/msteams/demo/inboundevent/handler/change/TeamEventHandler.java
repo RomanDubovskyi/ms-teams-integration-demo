@@ -19,8 +19,8 @@ public class TeamEventHandler implements ChangeEventHandler {
 
   @Override
   @SneakyThrows
-  public void handle(ParseNode parseNode, ChangeNotification event) {
-    Team team = parseNode.getObjectValue(Team::createFromDiscriminatorValue);
+  public void handle(ParseNode decryptedContent, ChangeNotification event) {
+    Team team = decryptedContent.getObjectValue(Team::createFromDiscriminatorValue);
     log.info(
         "GOT the following with content to handle {} \n with action {}",
         objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(team),

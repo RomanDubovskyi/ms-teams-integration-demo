@@ -18,13 +18,13 @@ public class MessageEventHandler implements ChangeEventHandler {
 
   @Override
   @SneakyThrows
-  public void handle(ParseNode parseNode, ChangeNotification event) {
-    ChatMessage message = parseNode.getObjectValue(ChatMessage::createFromDiscriminatorValue);
-    log.info(
-        "GOT the following with content to handle {} \n with action {}",
-        objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(message),
-        event.getChangeType().getValue()
+  public void handle(ParseNode decryptedContent, ChangeNotification event) {
+    ChatMessage message = decryptedContent.getObjectValue(
+        ChatMessage::createFromDiscriminatorValue
     );
+    log.info("GOT the following with content to handle {} \n with action {}",
+        objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(message),
+        event.getChangeType().getValue());
   }
 
   @Override

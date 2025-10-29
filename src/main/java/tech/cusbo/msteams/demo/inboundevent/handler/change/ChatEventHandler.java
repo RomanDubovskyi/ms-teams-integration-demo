@@ -17,8 +17,8 @@ public class ChatEventHandler implements ChangeEventHandler {
 
   @Override
   @SneakyThrows
-  public void handle(ParseNode parseNode, ChangeNotification event) {
-    Chat chat = parseNode.getObjectValue(Chat::createFromDiscriminatorValue);
+  public void handle(ParseNode decryptedContent, ChangeNotification event) {
+    Chat chat = decryptedContent.getObjectValue(Chat::createFromDiscriminatorValue);
     log.info(
         "GOT the following with content to handle {} \n with action {}",
         objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(chat),
