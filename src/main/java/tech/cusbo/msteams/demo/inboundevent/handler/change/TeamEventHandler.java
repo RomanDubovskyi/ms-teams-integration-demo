@@ -2,7 +2,6 @@ package tech.cusbo.msteams.demo.inboundevent.handler.change;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.microsoft.graph.models.ChangeNotification;
-import com.microsoft.graph.models.Channel;
 import com.microsoft.graph.models.Team;
 import com.microsoft.kiota.serialization.ParseNode;
 import lombok.RequiredArgsConstructor;

@@ -1,6 +1,5 @@
 package tech.cusbo.msteams.demo.inboundevent;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.microsoft.graph.models.ChangeNotification;
 import com.microsoft.graph.models.ChangeNotificationCollection;
