@@ -1,9 +1,8 @@
 package tech.cusbo.msteams.demo.inboundevent;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.microsoft.graph.models.ChangeNotificationEncryptedContent;
 import java.io.ByteArrayInputStream;
-import java.nio.charset.StandardCharsets;
 import java.security.KeyStore;
 import java.security.MessageDigest;
 import java.security.PrivateKey;
@@ -71,11 +70,11 @@ public class GraphEventsEncryptionService {
   }
 
   @SneakyThrows
-  public JsonNode decryptEvent(JsonNode encryptedNode) {
-    String encryptedDataBase64 = encryptedNode.path("data").asText();
-    String encryptedSymmetricKeyBase64 = encryptedNode.path("dataKey").asText();
-    String signatureBase64 = encryptedNode.path("dataSignature").asText();
-    String currentCertificateId = encryptedNode.path("encryptionCertificateId").asText();
+  public byte[] decryptNotificationContent(ChangeNotificationEncryptedContent encryptedContent) {
+    String encryptedDataBase64 = encryptedContent.getData();
+    String encryptedSymmetricKeyBase64 = encryptedContent.getDataKey();
+    String signatureBase64 = encryptedContent.getDataSignature();
+    String currentCertificateId = encryptedContent.getEncryptionCertificateId();
     if (!Objects.equals(currentCertificateId, encryptionKeyId)) {
       throw new SecurityException("Invalid encryption certificate id");
     }
@@ -102,7 +101,6 @@ public class GraphEventsEncryptionService {
     IvParameterSpec ivSpec = new IvParameterSpec(iv);
 
     aesCipher.init(Cipher.DECRYPT_MODE, aesKey, ivSpec);
-    byte[] decryptedBytes = aesCipher.doFinal(encryptedData);
-    return objectMapper.readTree(new String(decryptedBytes, StandardCharsets.UTF_8));
+    return aesCipher.doFinal(encryptedData);
   }
 }

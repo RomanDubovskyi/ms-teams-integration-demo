@@ -257,6 +257,80 @@
 				}
 			},
 			"response": []
+		},
+		{
+			"name": "get-all-app-subscriptions",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseURL}}/subscriptions/app",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"subscriptions",
+						"app"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get-current-user-subscriptions",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseURL}}/subscriptions/me",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"subscriptions",
+						"me"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "remove-app-subscriptions",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{baseURL}}/subscriptions/app/unsubscribe",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"subscriptions",
+						"app",
+						"unsubscribe"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "remove-current-user-subscriptions",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{baseURL}}/subscriptions/me/unsubscribe",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"subscriptions",
+						"me",
+						"unsubscribe"
+					]
+				}
+			},
+			"response": []
 		}
 	],
 	"variable": [

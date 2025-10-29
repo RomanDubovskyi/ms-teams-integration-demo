@@ -1,7 +1,7 @@
 package tech.cusbo.msteams.demo.inboundevent.handler.lifecycle;
 
 import com.azure.core.credential.AccessToken;
-import com.fasterxml.jackson.databind.JsonNode;
+import com.microsoft.graph.models.ChangeNotification;
 import com.microsoft.graph.models.Subscription;
 import com.microsoft.graph.serviceclient.GraphServiceClient;
 import java.time.Instant;
@@ -38,8 +38,8 @@ public class ReauthorizedRequestEventHandler implements LifeCycleEventsHandler {
   }
 
   @Override
-  public void handle(JsonNode event) {
-    String subscriptionId = event.path("subscriptionId").asText();
+  public void handle(ChangeNotification event) {
+    String subscriptionId = event.getSubscriptionId();
     log.info("Reauthorization requested for subscription {}", subscriptionId);
     GraphEventsSubscription subscription = subscriptionService.findByExternalId(subscriptionId)
         .orElseThrow(

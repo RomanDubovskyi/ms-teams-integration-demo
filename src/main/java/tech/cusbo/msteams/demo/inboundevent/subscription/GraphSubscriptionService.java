@@ -37,8 +37,14 @@ public class GraphSubscriptionService {
   private String appId;
 
   private final List<GraphSubscriptionResourceDto> userDefaultSubs = List.of(
-      new GraphSubscriptionResourceDto("/me/chats", List.of("created", "updated", "deleted")),
-      new GraphSubscriptionResourceDto("/me/chats/getAllMessages", List.of("created"))
+      new GraphSubscriptionResourceDto(
+          "/me/chats",
+          List.of("created", "updated", "deleted")
+      ),
+      new GraphSubscriptionResourceDto(
+          "/me/chats/getAllMessages",
+          List.of("created", "updated", "deleted")
+      )
   );
 
   private final List<GraphSubscriptionResourceDto> appDefaultSubs = List.of(

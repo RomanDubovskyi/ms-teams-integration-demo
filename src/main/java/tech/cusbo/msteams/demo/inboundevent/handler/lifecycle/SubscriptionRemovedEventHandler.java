@@ -1,7 +1,7 @@
 package tech.cusbo.msteams.demo.inboundevent.handler.lifecycle;
 
 
-import com.fasterxml.jackson.databind.JsonNode;
+import com.microsoft.graph.models.ChangeNotification;
 import java.util.NoSuchElementException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -15,8 +15,8 @@ public class SubscriptionRemovedEventHandler implements LifeCycleEventsHandler {
   private final GraphSubscriptionService subscriptionService;
 
   @Override
-  public void handle(JsonNode event) {
-    String subscriptionId = event.path("subscriptionId").asText();
+  public void handle(ChangeNotification event) {
+    String subscriptionId = event.getSubscriptionId();
     var subscription = subscriptionService.findByExternalId(subscriptionId)
         .orElseThrow(
             () -> new NoSuchElementException("Not subscription found by id " + subscriptionId)

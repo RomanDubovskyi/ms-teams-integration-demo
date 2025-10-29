@@ -37,6 +37,7 @@ public class GraphEventsSubscription {
   private String secret;
   // In production we're going to reference user entity here
   private String multitenantUserId;
+  private String scope;
   @Enumerated(value = EnumType.STRING)
   private SubscriptionState subscriptionState;
   @Enumerated(value = EnumType.STRING)

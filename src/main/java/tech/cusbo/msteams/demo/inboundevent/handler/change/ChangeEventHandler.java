@@ -1,10 +1,11 @@
 package tech.cusbo.msteams.demo.inboundevent.handler.change;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import com.microsoft.graph.models.ChangeNotification;
+import com.microsoft.kiota.serialization.ParseNode;
 
 public interface ChangeEventHandler {
 
-  void handle(JsonNode jsonNode);
+  void handle(ParseNode parseNode, ChangeNotification event);
 
-  String getEventType();
+  String getODataType();
 }

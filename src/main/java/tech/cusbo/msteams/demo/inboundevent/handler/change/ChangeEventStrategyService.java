@@ -1,6 +1,9 @@
 package tech.cusbo.msteams.demo.inboundevent.handler.change;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import com.microsoft.graph.models.ChangeNotification;
+import com.microsoft.kiota.serialization.JsonParseNodeFactory;
+import com.microsoft.kiota.serialization.ParseNode;
+import java.io.ByteArrayInputStream;
 import java.util.Map;
 import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
@@ -29,22 +32,26 @@ public class ChangeEventStrategyService {
   }
 
   @Async
-  public void pickHandlerAndProcessAsync(JsonNode event) {
-    String eventSecret = event.path("clientState").asText();
-    String subscriptionId = event.path("subscriptionId").asText();
-    var subscription = subscriptionService.findByExternalId(subscriptionId);
+  public void pickHandlerAndProcessAsync(ChangeNotification event) {
+    String eventSecret = event.getClientState();
+    var subscription = subscriptionService.findByExternalId(event.getSubscriptionId());
     if (subscription.isEmpty() || !Objects.equals(eventSecret, subscription.get().getSecret())) {
       throw new SecurityException("Invalid secret [clientState] field in the event, "
-          + "can't prove identity, full event" + event.toPrettyString());
+          + "can't prove identity, full event" + event);
     }
 
-    JsonNode encryptedContent = event.path("encryptedContent");
-    JsonNode decryptedContent = encryptionService.decryptEvent(encryptedContent);
-    log.info("Decrypted event payload: {}", decryptedContent);
-    String eventType = decryptedContent.path("messageType").asText();
-    log.info("RECEIVED change event {} to process in strategy service", decryptedContent);
+    byte[] contentBytes = encryptionService
+        .decryptNotificationContent(event.getEncryptedContent());
+    log.info("Decrypted event payload: {}", new String(contentBytes));
+    JsonParseNodeFactory parseNodeFactory = new JsonParseNodeFactory();
+    ParseNode parsedContent = parseNodeFactory.getParseNode(
+        "application/json",
+        new ByteArrayInputStream(contentBytes)
+    );
+
+    String dataType = event.getResourceData().getOdataType();
     ChangeEventHandler defaultHandler = changeEventHandlerMap.get("unsupported");
-    ChangeEventHandler handler = changeEventHandlerMap.getOrDefault(eventType, defaultHandler);
-    handler.handle(decryptedContent);
+    ChangeEventHandler handler = changeEventHandlerMap.getOrDefault(dataType, defaultHandler);
+    handler.handle(parsedContent, event);
   }
 }
