@@ -32,26 +32,26 @@ public class ChangeEventStrategyService {
   }
 
   @Async
-  public void pickHandlerAndProcessAsync(ChangeNotification event) {
-    String eventSecret = event.getClientState();
-    var subscription = subscriptionService.findByExternalId(event.getSubscriptionId());
+  public void pickHandlerAndProcessAsync(ChangeNotification topLevelEvent) {
+    String eventSecret = topLevelEvent.getClientState();
+    var subscription = subscriptionService.findByExternalId(topLevelEvent.getSubscriptionId());
     if (subscription.isEmpty() || !Objects.equals(eventSecret, subscription.get().getSecret())) {
       throw new SecurityException("Invalid secret [clientState] field in the event, "
-          + "can't prove identity, full event" + event);
+          + "can't prove identity, full event" + topLevelEvent);
     }
 
-    byte[] contentBytes = encryptionService
-        .decryptNotificationContent(event.getEncryptedContent());
-    log.info("Decrypted event payload: {}", new String(contentBytes));
+    byte[] decryptedBytes = encryptionService
+        .decryptNotificationContent(topLevelEvent.getEncryptedContent());
+    log.info("Decrypted event payload: {}", new String(decryptedBytes));
     JsonParseNodeFactory parseNodeFactory = new JsonParseNodeFactory();
-    ParseNode parsedContent = parseNodeFactory.getParseNode(
+    ParseNode decryptedContent = parseNodeFactory.getParseNode(
         "application/json",
-        new ByteArrayInputStream(contentBytes)
+        new ByteArrayInputStream(decryptedBytes)
     );
 
-    String dataType = event.getResourceData().getOdataType();
+    String dataType = topLevelEvent.getResourceData().getOdataType();
     ChangeEventHandler defaultHandler = changeEventHandlerMap.get("unsupported");
     ChangeEventHandler handler = changeEventHandlerMap.getOrDefault(dataType, defaultHandler);
-    handler.handle(parsedContent, event);
+    handler.handle(decryptedContent, topLevelEvent);
   }
 }
