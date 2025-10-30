@@ -37,7 +37,7 @@ public class ChangeEventStrategyService {
     var subscription = subscriptionService.findByExternalId(topLevelEvent.getSubscriptionId());
     if (subscription.isEmpty() || !Objects.equals(eventSecret, subscription.get().getSecret())) {
       throw new SecurityException("Invalid secret [clientState] field in the event, "
-          + "can't prove identity, full event" + topLevelEvent);
+          + "can't prove identity, event id: " + topLevelEvent.getId());
     }
 
     byte[] decryptedBytes = encryptionService

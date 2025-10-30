@@ -11,6 +11,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ *  This controller is added and should be used, purely at dev stage to simplify
+ *  local development and debugging. DON'T TRANSFER INTO PRODUCTION CODE BASE
+ */
+
 @RestController
 @RequestMapping("/subscriptions")
 public class SubscriptionController {
@@ -30,9 +35,9 @@ public class SubscriptionController {
   }
 
   @PostMapping("/ensure")
-  public ResponseEntity<String> subscribeOrgWide() {
+  public String subscribeOrgWide() {
     subscriptionService.ensureEventSubscriptionsByApp();
-    return ResponseEntity.ok("Org-wide subscriptions created/ensured.");
+    return "ok";
   }
 
   @GetMapping("/app")
@@ -48,20 +53,20 @@ public class SubscriptionController {
   }
 
   @DeleteMapping("/me/unsubscribe")
-  public ResponseEntity<String> removeLoggedInUserSubscriptions() {
+  public String removeLoggedInUserSubscriptions() {
     oauthGraphClient.subscriptions().get().getValue().forEach(s -> {
           oauthGraphClient.subscriptions().bySubscriptionId(s.getId()).delete();
         }
     );
-    return ResponseEntity.ok("ok");
+    return "ok";
   }
 
   @DeleteMapping("/app/unsubscribe")
-  public ResponseEntity<String> removeAppSubscriptions() {
+  public String removeAppSubscriptions() {
     appGraphClient.subscriptions().get().getValue().forEach(s -> {
           appGraphClient.subscriptions().bySubscriptionId(s.getId()).delete();
         }
     );
-    return ResponseEntity.ok("ok");
+    return "ok";
   }
 }
