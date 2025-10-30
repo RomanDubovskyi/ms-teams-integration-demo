@@ -33,9 +33,14 @@ public class ConversationMemberEventHandler implements ChangeEventHandler {
   @Override
   public Set<String> getODataTypes() {
     return Set.of(
+        "#Microsoft.Graph.conversationMember",
+        // All others are subtypes, added for safety
         "#Microsoft.Graph.aadUserConversationMember",
         "#Microsoft.Graph.anonymousGuestConversationMember",
-        "#Microsoft.Graph.azureCommunicationServicesUserConversationMember"
-        );
+        "#Microsoft.Graph.azureCommunicationServicesUserConversationMember",
+        "#Microsoft.Graph.microsoftAccountUserConversationMember",
+        "#Microsoft.Graph.skypeForBusinessUserConversationMember",
+        "#Microsoft.Graph.skypeUserConversationMember"
+    );
   }
 }
