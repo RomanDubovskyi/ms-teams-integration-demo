@@ -24,7 +24,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             "/api/graph/webhook/events",
             "/api/graph/webhook/lifecycle",
             "/subscriptions/ensure",
-            "/subscriptions/app**"
+            "/subscriptions/app",
+            "/subscriptions/app/**"
         ).permitAll()
         .antMatchers("/", "/login**", "/error").permitAll()
         .anyRequest().authenticated()

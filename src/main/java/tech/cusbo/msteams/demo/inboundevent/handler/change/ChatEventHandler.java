@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.microsoft.graph.models.ChangeNotification;
 import com.microsoft.graph.models.Chat;
 import com.microsoft.kiota.serialization.ParseNode;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class ChatEventHandler implements ChangeEventHandler {
+
   private final ObjectMapper objectMapper;
 
   @Override
@@ -27,7 +29,7 @@ public class ChatEventHandler implements ChangeEventHandler {
   }
 
   @Override
-  public String getODataType() {
-    return "#Microsoft.Graph.chat";
+  public Set<String> getODataTypes() {
+    return Set.of("#Microsoft.Graph.chat");
   }
 }
