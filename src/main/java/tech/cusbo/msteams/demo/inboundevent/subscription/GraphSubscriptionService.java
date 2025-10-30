@@ -60,12 +60,16 @@ public class GraphSubscriptionService {
       ),
       new GraphSubscriptionResourceDto(
           "/chats/getAllMembers",
-          List.of("created", "updated", "deleted")
-      ),
-      new GraphSubscriptionResourceDto(
-          "/teams/getAllChannels/getAllMembers",
-          List.of("created", "updated", "deleted")
+          List.of("created", "deleted")
       )
+      // TODO: The following subscription is currently supported only in the
+      //  beta version, not in the regular graph api v1.0 Alternatively think
+      //  how to use /teams/{team-id}/channels/getAllMembers
+      //  PREVIEW ONLY:
+      //  new GraphSubscriptionResourceDto(
+      //    "/teams/getAllChannels/getAllMembers",
+      //    List.of("created", "updated", "deleted")
+      //  )
   );
 
   public GraphSubscriptionService(

@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class TeamMemberEventHandler implements ChangeEventHandler {
+public class ConversationMemberEventHandler implements ChangeEventHandler {
 
   private final ObjectMapper objectMapper;
 
