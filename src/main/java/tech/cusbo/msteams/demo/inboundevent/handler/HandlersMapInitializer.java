@@ -1,5 +1,6 @@
 package tech.cusbo.msteams.demo.inboundevent.handler;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -30,8 +31,11 @@ public class HandlersMapInitializer {
   public Map<String, ChangeEventHandler> changeEventHandlers(
       List<ChangeEventHandler> handlerList
   ) {
-    return handlerList.stream().collect(
-        Collectors.toMap(ChangeEventHandler::getODataType, Function.identity())
-    );
+    Map<String, ChangeEventHandler> changeEventHandlers = new HashMap<>();
+    for (ChangeEventHandler handler : handlerList) {
+      handler.getODataTypes().forEach(t -> changeEventHandlers.put(t, handler));
+    }
+
+    return changeEventHandlers;
   }
 }

@@ -2,6 +2,7 @@ package tech.cusbo.msteams.demo.inboundevent.handler.change;
 
 import com.microsoft.graph.models.ChangeNotification;
 import com.microsoft.kiota.serialization.ParseNode;
+import java.util.Set;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -13,7 +14,7 @@ public class UnsupportedChangeEventHandler implements ChangeEventHandler {
   }
 
   @Override
-  public String getODataType() {
-    return "unsupported";
+  public Set<String> getODataTypes() {
+    return Set.of("unsupported");
   }
 }

@@ -57,6 +57,14 @@ public class GraphSubscriptionService {
       new GraphSubscriptionResourceDto(
           "/teams/getAllChannels",
           List.of("created", "updated", "deleted")
+      ),
+      new GraphSubscriptionResourceDto(
+          "/chats/getAllMembers",
+          List.of("created", "updated", "deleted")
+      ),
+      new GraphSubscriptionResourceDto(
+          "/teams/getAllChannels/getAllMembers",
+          List.of("created", "updated", "deleted")
       )
   );
 

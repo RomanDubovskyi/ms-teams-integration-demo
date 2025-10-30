@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.microsoft.graph.models.ChangeNotification;
 import com.microsoft.graph.models.ChatMessage;
 import com.microsoft.kiota.serialization.ParseNode;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -28,7 +29,7 @@ public class MessageEventHandler implements ChangeEventHandler {
   }
 
   @Override
-  public String getODataType() {
-    return "#Microsoft.Graph.chatMessage";
+  public Set<String> getODataTypes() {
+    return Set.of("#Microsoft.Graph.chatMessage");
   }
 }
