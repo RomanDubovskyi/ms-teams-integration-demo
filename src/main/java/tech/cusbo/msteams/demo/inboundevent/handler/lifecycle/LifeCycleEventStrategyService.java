@@ -1,6 +1,6 @@
 package tech.cusbo.msteams.demo.inboundevent.handler.lifecycle;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import com.microsoft.graph.models.ChangeNotification;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -20,8 +20,8 @@ public class LifeCycleEventStrategyService {
   }
 
   @Async
-  public void handleLifeCycleEventAsync(JsonNode event) {
-    String eventType = event.path("lifecycleEvent").asText();
+  public void handleLifeCycleEventAsync(ChangeNotification event) {
+    String eventType = event.getLifecycleEvent().getValue();
     log.info("RECEIVED event {} to process in strategy service", event);
     LifeCycleEventsHandler defaultHandler = lifecycleEventHandlers.get("unsupported");
     LifeCycleEventsHandler handler = lifecycleEventHandlers.getOrDefault(eventType, defaultHandler);

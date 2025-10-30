@@ -1,6 +1,9 @@
 package tech.cusbo.msteams.demo.inboundevent.handler.change;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import com.microsoft.graph.models.ChangeNotification;
+import com.microsoft.kiota.serialization.JsonParseNodeFactory;
+import com.microsoft.kiota.serialization.ParseNode;
+import java.io.ByteArrayInputStream;
 import java.util.Map;
 import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
@@ -29,22 +32,26 @@ public class ChangeEventStrategyService {
   }
 
   @Async
-  public void pickHandlerAndProcessAsync(JsonNode event) {
-    String eventSecret = event.path("clientState").asText();
-    String subscriptionId = event.path("subscriptionId").asText();
-    var subscription = subscriptionService.findByExternalId(subscriptionId);
+  public void pickHandlerAndProcessAsync(ChangeNotification topLevelEvent) {
+    String eventSecret = topLevelEvent.getClientState();
+    var subscription = subscriptionService.findByExternalId(topLevelEvent.getSubscriptionId());
     if (subscription.isEmpty() || !Objects.equals(eventSecret, subscription.get().getSecret())) {
       throw new SecurityException("Invalid secret [clientState] field in the event, "
-          + "can't prove identity, full event" + event.toPrettyString());
+          + "can't prove identity, event id: " + topLevelEvent.getId());
     }
 
-    JsonNode encryptedContent = event.path("encryptedContent");
-    JsonNode decryptedContent = encryptionService.decryptEvent(encryptedContent);
-    log.info("Decrypted event payload: {}", decryptedContent);
-    String eventType = decryptedContent.path("messageType").asText();
-    log.info("RECEIVED change event {} to process in strategy service", decryptedContent);
+    byte[] decryptedBytes = encryptionService
+        .decryptNotificationContent(topLevelEvent.getEncryptedContent());
+    log.info("Decrypted event payload: {}", new String(decryptedBytes));
+    JsonParseNodeFactory parseNodeFactory = new JsonParseNodeFactory();
+    ParseNode decryptedContent = parseNodeFactory.getParseNode(
+        "application/json",
+        new ByteArrayInputStream(decryptedBytes)
+    );
+
+    String dataType = topLevelEvent.getResourceData().getOdataType();
     ChangeEventHandler defaultHandler = changeEventHandlerMap.get("unsupported");
-    ChangeEventHandler handler = changeEventHandlerMap.getOrDefault(eventType, defaultHandler);
-    handler.handle(decryptedContent);
+    ChangeEventHandler handler = changeEventHandlerMap.getOrDefault(dataType, defaultHandler);
+    handler.handle(decryptedContent, topLevelEvent);
   }
 }

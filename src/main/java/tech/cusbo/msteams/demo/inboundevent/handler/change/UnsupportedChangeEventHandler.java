@@ -1,18 +1,19 @@
 package tech.cusbo.msteams.demo.inboundevent.handler.change;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import com.microsoft.graph.models.ChangeNotification;
+import com.microsoft.kiota.serialization.ParseNode;
 import org.springframework.stereotype.Component;
 
 @Component
 public class UnsupportedChangeEventHandler implements ChangeEventHandler {
 
   @Override
-  public void handle(JsonNode event) {
-    throw new RuntimeException("GOT unsupported event " + event.toPrettyString());
+  public void handle(ParseNode decryptedContent, ChangeNotification event) {
+    throw new RuntimeException("GOT unsupported event " + decryptedContent);
   }
 
   @Override
-  public String getEventType() {
+  public String getODataType() {
     return "unsupported";
   }
 }

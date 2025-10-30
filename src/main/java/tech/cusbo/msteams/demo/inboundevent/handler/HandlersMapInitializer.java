@@ -31,7 +31,7 @@ public class HandlersMapInitializer {
       List<ChangeEventHandler> handlerList
   ) {
     return handlerList.stream().collect(
-        Collectors.toMap(ChangeEventHandler::getEventType, Function.identity())
+        Collectors.toMap(ChangeEventHandler::getODataType, Function.identity())
     );
   }
 }

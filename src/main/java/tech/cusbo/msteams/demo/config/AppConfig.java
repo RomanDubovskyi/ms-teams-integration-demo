@@ -2,7 +2,9 @@ package tech.cusbo.msteams.demo.config;
 
 import com.azure.identity.ClientSecretCredential;
 import com.azure.identity.ClientSecretCredentialBuilder;
+import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.microsoft.graph.core.requests.GraphClientFactory;
 import com.microsoft.graph.serviceclient.GraphServiceClient;
@@ -32,8 +34,10 @@ public class AppConfig {
 
   @Bean
   public ObjectMapper defaultObjectMapper() {
-    ObjectMapper mapper = new ObjectMapper();
-    mapper.writerWithDefaultPrettyPrinter();
+    // MS Graph Api events have mismatch with class enum field "ChangeType": created -> Created
+    ObjectMapper mapper = JsonMapper.builder()
+        .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS)
+        .build();
     mapper.registerModule(new JavaTimeModule());
     return mapper;
   }

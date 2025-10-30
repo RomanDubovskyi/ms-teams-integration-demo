@@ -1,7 +1,10 @@
 package tech.cusbo.msteams.demo.inboundevent;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.microsoft.graph.models.ChangeNotification;
+import com.microsoft.graph.models.ChangeNotificationCollection;
+import com.microsoft.graph.models.LifecycleEventType;
+import com.microsoft.kiota.serialization.KiotaJsonSerialization;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -32,10 +35,14 @@ public class InboundEventsController {
   )
   @SneakyThrows
   public ResponseEntity<String> processInboundEvent(
-      @RequestBody(required = false) String body,
+      @RequestBody(required = false) String jsonPayload,
       @RequestParam(required = false, name = "validationToken") String validationToken
   ) {
-    log.info("Received inbound /events call. validationToken={}, body={}", validationToken, body);
+    log.info(
+        "Received change notification with:  \n validationToken={}, \n body={}",
+        validationToken,
+        jsonPayload
+    );
     if (validationToken != null) {
       log.info("Responding to subscription validation with token={}", validationToken);
       return ResponseEntity.ok()
@@ -43,9 +50,13 @@ public class InboundEventsController {
           .body(validationToken);
     }
 
-    JsonNode events = objectMapper.readTree(body);
-    log.info("Parsed event payload: {}", events.toPrettyString());
-    for (JsonNode event : events.path("value")) {
+    ChangeNotificationCollection notifications = KiotaJsonSerialization.deserialize(
+        jsonPayload,
+        ChangeNotificationCollection::createFromDiscriminatorValue
+    );
+    log.info("Parsed event payload: {}", objectMapper.writeValueAsString(notifications));
+
+    for (ChangeNotification event : notifications.getValue()) {
       changeEventStrategyService.pickHandlerAndProcessAsync(event);
     }
     return ResponseEntity.ok()
@@ -60,24 +71,32 @@ public class InboundEventsController {
   )
   @SneakyThrows
   public ResponseEntity<String> processLifecycleEvent(
-      @RequestBody(required = false) String body,
+      @RequestBody(required = false) String jsonPayload,
       @RequestParam(required = false, name = "validationToken") String validationToken
   ) {
-    log.info("Received inbound events call. validationToken={}, body={}", validationToken, body);
+    log.info(
+        "Received lifecycle notification with:  \n validationToken={}, \n body={}",
+        validationToken,
+        jsonPayload
+    );
     if (validationToken != null) {
       log.info("VALIDATION REQUEST, token={}", validationToken);
       return ResponseEntity.ok()
           .contentType(MediaType.TEXT_PLAIN)
           .body(validationToken);
     }
-    JsonNode events = objectMapper.readTree(body);
-    log.info("LIFECYCLE EVENT, BODY: {}", events.toPrettyString());
-    for (JsonNode event : events.path("value")) {
-      String lifecycleEvent = event.path("lifecycleEvent").asText();
+
+    ChangeNotificationCollection notifications = KiotaJsonSerialization.deserialize(
+        jsonPayload,
+        ChangeNotificationCollection::createFromDiscriminatorValue
+    );
+    log.info("Parsed event payload: {}", objectMapper.writeValueAsString(notifications));
+    for (ChangeNotification event : notifications.getValue()) {
+      LifecycleEventType lifecycleEvent = event.getLifecycleEvent();
       // For auth challenge we can't use async in service,
       // hence it has to be returned right away
-      if ("authenticationChallenge".equalsIgnoreCase(lifecycleEvent)) {
-        String challenge = event.path("resourceData").path("challenge").asText();
+      if ("authenticationChallenge".equalsIgnoreCase(lifecycleEvent.getValue())) {
+        String challenge = (String) event.getResourceData().getAdditionalData().get("challenge");
         log.info("AUTH CHALLENGE, responding with {}", challenge);
         return ResponseEntity.ok()
             .contentType(MediaType.TEXT_PLAIN)
