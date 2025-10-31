@@ -1,40 +1,37 @@
 package tech.cusbo.msteams.demo.inboundevent.handler.lifecycle;
 
-import com.azure.core.credential.AccessToken;
 import com.microsoft.graph.models.ChangeNotification;
 import com.microsoft.graph.models.Subscription;
 import com.microsoft.graph.serviceclient.GraphServiceClient;
-import java.time.Instant;
 import java.time.OffsetDateTime;
-import java.time.ZoneId;
+import java.time.ZoneOffset;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.security.oauth2.client.OAuth2AuthorizeRequest;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager;
 import org.springframework.stereotype.Component;
-import reactor.core.publisher.Mono;
 import tech.cusbo.msteams.demo.inboundevent.subscription.GraphEventsSubscription;
 import tech.cusbo.msteams.demo.inboundevent.subscription.GraphSubscriptionService;
 import tech.cusbo.msteams.demo.inboundevent.subscription.SubscriptionOwnerType;
 import tech.cusbo.msteams.demo.inboundevent.subscription.SubscriptionState;
-import tech.cusbo.msteams.demo.security.oauth.MsGraphOauthTokenService;
-import tech.cusbo.msteams.demo.security.oauth.OauthToken;
 
 @Slf4j
 @Component
 public class ReauthorizedRequestEventHandler implements LifeCycleEventsHandler {
 
   private final GraphSubscriptionService subscriptionService;
-  private final MsGraphOauthTokenService oauthTokenService;
+  private final OAuth2AuthorizedClientManager clientManager;
   private final GraphServiceClient appGraphClient;
 
 
   public ReauthorizedRequestEventHandler(
       @Qualifier("appScopeServiceClient") GraphServiceClient appGraphClient,
       GraphSubscriptionService subscriptionService,
-      MsGraphOauthTokenService oauthTokenService
+      OAuth2AuthorizedClientManager clientManager
   ) {
     this.appGraphClient = appGraphClient;
     this.subscriptionService = subscriptionService;
-    this.oauthTokenService = oauthTokenService;
+    this.clientManager = clientManager;
   }
 
   @Override
@@ -67,21 +64,24 @@ public class ReauthorizedRequestEventHandler implements LifeCycleEventsHandler {
   }
 
   private GraphServiceClient getRequestScopedClient(GraphEventsSubscription subscription) {
-    OauthToken oauthToken = oauthTokenService
-        .findByMultitenantUserId(subscription.getMultitenantUserId())
-        .orElseThrow(
-            () -> new RuntimeException("Can't reauthorize, no valid user access token for USER "
-                + subscription.getMultitenantUserId())
-        );
-    if (oauthToken.needsRefresh()) {
-      oauthToken = oauthTokenService.refreshToken(oauthToken);
+    String multitenantUserId = subscription.getMultitenantUserId();
+    var req = OAuth2AuthorizeRequest
+        .withClientRegistrationId("azure")
+        .principal(multitenantUserId)
+        .build();
+
+    var client = clientManager.authorize(req);
+    if (client == null || client.getAccessToken() == null) {
+      throw new RuntimeException("Cannot load/refresh user token for " + multitenantUserId);
     }
-    String requestAccessToken = oauthToken.getAccessToken();
-    Instant requestTokenExpiresAt = oauthToken.getExpiresAt();
+
+    var accessToken = client.getAccessToken();
     return new GraphServiceClient(request -> {
-      var tokenTtl = OffsetDateTime.ofInstant(requestTokenExpiresAt, ZoneId.systemDefault());
-      var accessToken = new AccessToken(requestAccessToken, tokenTtl);
-      return Mono.just(accessToken);
+      var tok = new com.azure.core.credential.AccessToken(
+          accessToken.getTokenValue(),
+          accessToken.getExpiresAt().atOffset(ZoneOffset.UTC)
+      );
+      return reactor.core.publisher.Mono.just(tok);
     });
   }
 

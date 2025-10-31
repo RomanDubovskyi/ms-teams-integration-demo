@@ -16,7 +16,7 @@ import tech.cusbo.msteams.demo.security.util.MsGraphMultiTenantKeyUtil;
 
 @Service
 @RequiredArgsConstructor
-public class OAuthClientService implements OAuth2AuthorizedClientService {
+public class OAuth2AuthorizedClientServiceImpl implements OAuth2AuthorizedClientService {
 
   private final ClientRegistrationRepository clientRegistrationRepository;
   private final MsGraphOauthTokenService oauthService;
@@ -59,10 +59,6 @@ public class OAuthClientService implements OAuth2AuthorizedClientService {
     }
 
     OauthToken token = opt.get();
-    if (token.needsRefresh()) {
-      token = oauthService.refreshToken(token);
-    }
-
     OAuth2AccessToken accessToken = new OAuth2AccessToken(
         OAuth2AccessToken.TokenType.BEARER,
         token.getAccessToken(),
