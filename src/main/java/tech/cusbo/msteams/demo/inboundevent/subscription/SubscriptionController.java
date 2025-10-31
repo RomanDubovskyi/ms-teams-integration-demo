@@ -54,6 +54,10 @@ public class SubscriptionController {
 
   @DeleteMapping("/me/unsubscribe")
   public String removeLoggedInUserSubscriptions() {
+    // TODO: For some reason we're getting here No subscription found for tenantId:
+    //  and subscriptionsId although the method works fine, and eventually the subscriptions
+    //  are removed eventually on second or third attempt, will have to
+    //  look into that. (Maybe just API delay from MS Graph side).
     oauthGraphClient.subscriptions().get().getValue().forEach(s -> {
           oauthGraphClient.subscriptions().bySubscriptionId(s.getId()).delete();
         }
