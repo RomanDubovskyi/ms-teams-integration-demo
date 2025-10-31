@@ -4,6 +4,7 @@ import com.microsoft.graph.models.ChangeNotification;
 import com.microsoft.graph.models.Subscription;
 import com.microsoft.graph.serviceclient.GraphServiceClient;
 import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -79,7 +80,7 @@ public class ReauthorizedRequestEventHandler implements LifeCycleEventsHandler {
     return new GraphServiceClient(request -> {
       var tok = new com.azure.core.credential.AccessToken(
           accessToken.getTokenValue(),
-          accessToken.getExpiresAt().atOffset(ZoneOffset.UTC)
+          OffsetDateTime.ofInstant(accessToken.getExpiresAt(), ZoneId.systemDefault())
       );
       return reactor.core.publisher.Mono.just(tok);
     });
