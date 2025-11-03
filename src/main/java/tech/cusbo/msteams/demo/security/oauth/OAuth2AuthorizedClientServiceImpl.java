@@ -72,6 +72,7 @@ public class OAuth2AuthorizedClientServiceImpl implements OAuth2AuthorizedClient
     OAuth2AccessToken accessToken = new OAuth2AccessToken(
         OAuth2AccessToken.TokenType.BEARER,
         token.getAccessToken(),
+        // issuedAt is not provided by MS Graph APi but required in Spring, hence the work-around
         token.getCreatedAt().isBefore(token.getExpiresAt())
             ? token.getCreatedAt()
             : token.getExpiresAt().minusSeconds(1),
