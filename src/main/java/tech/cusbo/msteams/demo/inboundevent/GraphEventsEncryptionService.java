@@ -2,6 +2,7 @@ package tech.cusbo.msteams.demo.inboundevent;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.microsoft.graph.models.ChangeNotificationEncryptedContent;
+import jakarta.annotation.PostConstruct;
 import java.io.ByteArrayInputStream;
 import java.security.KeyStore;
 import java.security.MessageDigest;
@@ -10,7 +11,6 @@ import java.security.Security;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Objects;
-import javax.annotation.PostConstruct;
 import javax.crypto.Cipher;
 import javax.crypto.Mac;
 import javax.crypto.spec.IvParameterSpec;
