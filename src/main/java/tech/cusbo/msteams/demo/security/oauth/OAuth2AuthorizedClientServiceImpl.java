@@ -60,7 +60,7 @@ public class OAuth2AuthorizedClientServiceImpl implements OAuth2AuthorizedClient
   public <T extends OAuth2AuthorizedClient> T loadAuthorizedClient(String registrationId,
       String principalName) {
     if (!"azure".equalsIgnoreCase(registrationId)) {
-      throw new RuntimeException("IT'S NOT DESIGNED TO HANDLE ANYTHING ELSE THEN AZURE, "
+      throw new SecurityException("IT'S NOT DESIGNED TO HANDLE ANYTHING ELSE THEN AZURE, "
           + "RECEIVED " + registrationId);
     }
     Optional<OauthToken> opt = oauthService.findByMultitenantUserId(principalName);
@@ -88,7 +88,7 @@ public class OAuth2AuthorizedClientServiceImpl implements OAuth2AuthorizedClient
   @Override
   public void removeAuthorizedClient(String registrationId, String principalName) {
     if (!"azure".equalsIgnoreCase(registrationId)) {
-      throw new RuntimeException("IT'S NOT DESIGNED TO HANDLE ANYTHING ELSE THEN AZURE, "
+      throw new SecurityException("IT'S NOT DESIGNED TO HANDLE ANYTHING ELSE THEN AZURE, "
           + "RECEIVED " + registrationId);
     }
 

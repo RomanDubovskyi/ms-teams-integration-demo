@@ -73,11 +73,11 @@ public class ReauthorizedRequestEventHandler implements LifeCycleEventsHandler {
 
     var client = clientManager.authorize(req);
     if (client == null || client.getAccessToken() == null) {
-      throw new RuntimeException("Cannot load/refresh user token for " + multitenantUserId);
+      throw new SecurityException("Cannot load/refresh user token for " + multitenantUserId);
     }
 
     var accessToken = client.getAccessToken();
-    log.info("[TEMP IMPORTANT], Loaded client successfully, using clientManager");
+    log.info("Loaded client successfully, using clientManager");
     return new GraphServiceClient(request -> {
       var tok = new AccessToken(
           accessToken.getTokenValue(),
