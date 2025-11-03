@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.oauth2.client.OAuth2AuthorizeRequest;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Mono;
 import tech.cusbo.msteams.demo.inboundevent.subscription.GraphEventsSubscription;
 import tech.cusbo.msteams.demo.inboundevent.subscription.GraphSubscriptionService;
 import tech.cusbo.msteams.demo.inboundevent.subscription.SubscriptionOwnerType;
@@ -83,7 +84,7 @@ public class ReauthorizedRequestEventHandler implements LifeCycleEventsHandler {
           accessToken.getTokenValue(),
           OffsetDateTime.ofInstant(accessToken.getExpiresAt(), ZoneId.systemDefault())
       );
-      return reactor.core.publisher.Mono.just(tok);
+      return Mono.just(tok);
     });
   }
 

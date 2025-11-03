@@ -9,7 +9,7 @@ The project runs locally in Docker and relies on Azure AD and ngrok.
 
 ## Architecture
 
-* Java 17 / Spring Boot 2.6.6
+* Java 21 / Spring Boot 4.0.0-RC1
 * Runs via Docker Compose (app container + PostgreSQL)
 * ngrok exposes local app for Graph webhooks
 * OAuth2 client (Azure) with both Authorization Code and OBO flows
@@ -17,7 +17,7 @@ The project runs locally in Docker and relies on Azure AD and ngrok.
 
 ## Prerequisites
 
-* JDK 17
+* JDK 21
 * Docker
 * ngrok
 * An Azure AD tenant to register (in new app)
