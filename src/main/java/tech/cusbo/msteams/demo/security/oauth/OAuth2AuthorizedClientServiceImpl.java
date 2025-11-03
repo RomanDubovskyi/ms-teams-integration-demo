@@ -16,7 +16,7 @@ import tech.cusbo.msteams.demo.security.util.MsGraphMultiTenantKeyUtil;
 
 @Service
 @RequiredArgsConstructor
-public class OAuthClientService implements OAuth2AuthorizedClientService {
+public class OAuth2AuthorizedClientServiceImpl implements OAuth2AuthorizedClientService {
 
   private final ClientRegistrationRepository clientRegistrationRepository;
   private final MsGraphOauthTokenService oauthService;
@@ -28,10 +28,7 @@ public class OAuthClientService implements OAuth2AuthorizedClientService {
       throw new RuntimeException("IT'S NOT DESIGNED TO HANDLE ANYTHING ELSE THEN AZURE");
     }
 
-    OAuth2User authUser = (OAuth2User) principal.getPrincipal();
-    String tenantId = (String) authUser.getAttributes().get("tid");
-    String msUserId = (String) authUser.getAttributes().get("oid");
-    String multitenantId = MsGraphMultiTenantKeyUtil.getMultitenantId(tenantId, msUserId);
+    String multitenantId = parseMultitenantIdFromPrincipal(principal);
 
     // If user logins from another UI while having valid token we sync tokens and set new one to db
     OauthToken token = oauthService.findByMultitenantUserId(multitenantId)
@@ -46,11 +43,24 @@ public class OAuthClientService implements OAuth2AuthorizedClientService {
     oauthService.save(token);
   }
 
+  private String parseMultitenantIdFromPrincipal(Authentication principal) {
+    // The format of plain string that we use to re-authorize
+    if (principal.getPrincipal() instanceof String multiTenantId) {
+      return multiTenantId;
+    }
+
+    // The format that is sent by azure on success login (azure oAuth2 flow)
+    OAuth2User authUser = (OAuth2User) principal.getPrincipal();
+    String tenantId = (String) authUser.getAttributes().get("tid");
+    String msUserId = (String) authUser.getAttributes().get("oid");
+    return MsGraphMultiTenantKeyUtil.getMultitenantId(tenantId, msUserId);
+  }
+
   @Override
   public <T extends OAuth2AuthorizedClient> T loadAuthorizedClient(String registrationId,
       String principalName) {
     if (!"azure".equalsIgnoreCase(registrationId)) {
-      throw new RuntimeException("IT'S NOT DESIGNED TO HANDLE ANYTHING ELSE THEN AZURE, "
+      throw new SecurityException("IT'S NOT DESIGNED TO HANDLE ANYTHING ELSE THEN AZURE, "
           + "RECEIVED " + registrationId);
     }
     Optional<OauthToken> opt = oauthService.findByMultitenantUserId(principalName);
@@ -59,14 +69,13 @@ public class OAuthClientService implements OAuth2AuthorizedClientService {
     }
 
     OauthToken token = opt.get();
-    if (token.needsRefresh()) {
-      token = oauthService.refreshToken(token);
-    }
-
     OAuth2AccessToken accessToken = new OAuth2AccessToken(
         OAuth2AccessToken.TokenType.BEARER,
         token.getAccessToken(),
-        Instant.now(),
+        // issuedAt is not provided by MS Graph APi but required in Spring, hence the work-around
+        token.getCreatedAt().isBefore(token.getExpiresAt())
+            ? token.getCreatedAt()
+            : token.getExpiresAt().minusSeconds(1),
         token.getExpiresAt()
     );
 
@@ -79,7 +88,7 @@ public class OAuthClientService implements OAuth2AuthorizedClientService {
   @Override
   public void removeAuthorizedClient(String registrationId, String principalName) {
     if (!"azure".equalsIgnoreCase(registrationId)) {
-      throw new RuntimeException("IT'S NOT DESIGNED TO HANDLE ANYTHING ELSE THEN AZURE, "
+      throw new SecurityException("IT'S NOT DESIGNED TO HANDLE ANYTHING ELSE THEN AZURE, "
           + "RECEIVED " + registrationId);
     }
 
