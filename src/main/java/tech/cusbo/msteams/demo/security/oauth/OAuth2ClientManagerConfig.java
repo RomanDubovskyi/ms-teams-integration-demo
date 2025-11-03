@@ -20,7 +20,6 @@ public class OAuth2ClientManagerConfig {
     manager.setAuthorizedClientProvider(
         OAuth2AuthorizedClientProviderBuilder.builder()
             .refreshToken()
-            .authorizationCode()
             .build()
     );
     return manager;
