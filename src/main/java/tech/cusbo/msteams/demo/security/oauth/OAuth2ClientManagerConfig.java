@@ -17,7 +17,6 @@ public class OAuth2ClientManagerConfig {
       OAuth2AuthorizedClientService service
   ) {
     var manager = new AuthorizedClientServiceOAuth2AuthorizedClientManager(clients, service);
-
     manager.setAuthorizedClientProvider(
         OAuth2AuthorizedClientProviderBuilder.builder()
             .refreshToken()

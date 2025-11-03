@@ -1,11 +1,11 @@
 package tech.cusbo.msteams.demo.inboundevent.handler.lifecycle;
 
+import com.azure.core.credential.AccessToken;
 import com.microsoft.graph.models.ChangeNotification;
 import com.microsoft.graph.models.Subscription;
 import com.microsoft.graph.serviceclient.GraphServiceClient;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
-import java.time.ZoneOffset;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.oauth2.client.OAuth2AuthorizeRequest;
@@ -77,8 +77,9 @@ public class ReauthorizedRequestEventHandler implements LifeCycleEventsHandler {
     }
 
     var accessToken = client.getAccessToken();
+    log.info("[TEMP IMPORTANT], Loaded client successfully, using clientManager");
     return new GraphServiceClient(request -> {
-      var tok = new com.azure.core.credential.AccessToken(
+      var tok = new AccessToken(
           accessToken.getTokenValue(),
           OffsetDateTime.ofInstant(accessToken.getExpiresAt(), ZoneId.systemDefault())
       );
